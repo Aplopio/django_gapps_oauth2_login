@@ -14,25 +14,6 @@ redirect_user_loggedin_via_oauth2.receivers = []
 
 class TestGappsOauth2Login(unittest.TestCase):
 
-    def test_make_a_request(self):
-        request = HttpRequest()
-        request.META = {
-            'SERVER_NAME': 'testserver',
-            'SERVER_PORT': 80,
-            'REMOTE_ADDR': '6457.255.345.123',
-        }
-        request.REQUEST = {
-            'state': settings.SECRET_KEY
-        }
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
-        user.save()
-
-        request.user = user
-
-        redirect_resp = login_begin(request)
-        bad_response = auth_required(request)
-
-
     def test_singnal_sent(self):
         def dummy_signal_receiver(sender, instance, **kwargs):
             # check if received expected string
@@ -193,4 +174,22 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(user.last_name, 'lal')
         self.assertEqual(user.username, 'ram.lal@abcd.com')
         user.delete()
+
+    def test_make_a_request(self):
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': settings.SECRET_KEY
+        }
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+        request.user = user
+
+        redirect_resp = login_begin(request)
+        bad_response = auth_required(request)
 
