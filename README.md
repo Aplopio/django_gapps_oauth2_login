@@ -7,7 +7,7 @@ login_begin - this view is called by the google markeplace url ( /oauth2/login )
 
 auth_required - this view is called by google after proper authentication ( we give at as redirect_uri to google: /oauth2/oauth2callback )
 
-For the first time when a user installs recruiterbox google app, it lands to login_begin & after taking appropriate authentication access, it get's redirected to auth_required view.
+For the first time when a user installs your google app, it lands to login_begin & after taking appropriate authentication access, it get's redirected to auth_required view.
 
 Once the user is created, a signal is raised "user_created_via_oauth2".
 
