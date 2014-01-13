@@ -3,15 +3,17 @@ Django Google Apps Oauth2 Login:
 
 1. `git clone https://github.com/Aplopio/django_gapps_oauth2_login.git`
 
-2. Add 'django_gapps_oauth2_login' to INSTALLED_APPS in settings.py
+2. Add <b>client_secrets.json</b> provided by google cloud console credentials to be placed in this directory.
 
-3. Update urls.py by adding following entry: 
+3. Add 'django_gapps_oauth2_login' to INSTALLED_APPS in settings.py
+ 
+4. Update urls.py by adding following entry: 
 
   `(r'^oauth2/', include('django_gapps_oauth2_login.urls'))`
 
-4. run `python manage.py syncdb`
+5. run `python manage.py syncdb`
 
-5. Write custom receivers for <b>user_created_via_oauth2</b> & <b>redirect_user_loggedin_via_oauth2</b> signals
+6. Write custom receivers for <b>user_created_via_oauth2</b> & <b>redirect_user_loggedin_via_oauth2</b> signals
 
 -----------------------------------------------------
 Google Apps Oauth2 Flow:
