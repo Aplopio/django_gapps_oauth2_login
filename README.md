@@ -7,7 +7,7 @@ Django Google Apps Oauth2 Login:
 
 3. Update urls.py by adding following entry: 
 
-  `(r'^oauth2/', include('django-gapps-oauth2-login.urls'))`
+  `(r'^oauth2/', include('django_gapps_oauth2_login.urls'))`
 
 4. run `python manage.py syncdb`
 
