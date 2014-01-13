@@ -15,7 +15,7 @@ Once the user is authenticated, a signal is raised "redirect_user_loggedin_via_o
 
 You will have to hook up appropriate receivers for these signals
 
-It needs client_secrets.json provided by google cloud console to be placed in this directory.
+<b>It needs client_secrets.json provided by google cloud console to be placed in this directory.</b>
 
 
 
