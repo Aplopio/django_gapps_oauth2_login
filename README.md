@@ -14,7 +14,7 @@ Django Google Apps Oauth2 Login:
 5. Write custom receivers for <b>user_created_via_oauth2</b> & <b>redirect_user_loggedin_via_oauth2</b> signals
 
 -----------------------------------------------------
-Google Apss Oauth2 Flow:
+Google Apps Oauth2 Flow:
 ------------------------
  
 Oauth2 Login module has two views login_begin & auth_required.
