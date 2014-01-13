@@ -1,5 +1,5 @@
-Google Apps Oauth2 Login:
-------------------------
+Django Google Apps Oauth2 Login:
+--------------------------------
  
 Oauth2 Login module has two views login_begin & auth_required.
 
