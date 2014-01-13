@@ -8,16 +8,16 @@ from oauth2client import xsrfutil
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
 
-from oauth2_login.signals import redirect_user_loggedin_via_oauth2
-from oauth2_login.oauth2_utils import create_user_from_oauth2
-from oauth2_login.models import *
+from django_gapps_oauth2_login.signals import redirect_user_loggedin_via_oauth2
+from django_gapps_oauth2_login.oauth2_utils import create_user_from_oauth2
+from django_gapps_oauth2_login.models import *
 
 
 CLIENT_SECRETS = os.path.join(os.path.dirname(__file__), '', 'client_secrets.json')
 CLIENT_SECRETS  = json.loads(open(CLIENT_SECRETS, 'r').read())['web']
 
 constructor_kwargs = {
-    'redirect_uri': settings.GAPPS_OAUTH2_REDIRECT_URI,
+    'redirect_uri': CLIENT_SECRETS['redirect_uris'][0],
     'auth_uri': CLIENT_SECRETS['auth_uri'],
     'token_uri': CLIENT_SECRETS['token_uri'],
     'access_type' : 'online'

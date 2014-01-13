@@ -1,8 +1,8 @@
 import json
 import requests
 from django.contrib.auth.models import User
-from oauth2_login.signals import user_created_via_oauth2
-from oauth2_login.models import *
+from django_gapps_oauth2_login.signals import user_created_via_oauth2
+from django_gapps_oauth2_login.models import *
 
 class IdentityAlreadyClaimed(Exception):
     pass
