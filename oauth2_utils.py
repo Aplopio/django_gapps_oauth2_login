@@ -7,7 +7,6 @@ from django_gapps_oauth2_login.models import *
 class IdentityAlreadyClaimed(Exception):
     pass
 
-
 def get_profile(url):
     return json.loads(requests.get(url).content)
 
@@ -77,10 +76,6 @@ def create_user_from_oauth2(oauth2_response):
         associate_oauth2(user, oauth2_response)
         return user
     except User.DoesNotExist:
-        #apps_domain = email.split("@")[-1]
-        #client = Client.get(apps_domain = apps_domain)
-        # if client is not None:
-        #    return None
         user = User.objects.create_user(username, email, password=None)
         update_user_details(user, details)
         associate_oauth2(user, oauth2_response)
