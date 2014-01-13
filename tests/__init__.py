@@ -1,14 +1,14 @@
 from django.utils import unittest
 from django.http import HttpRequest
-from oauth2_login.views import *
+from django_gapps_oauth2_login.views import *
 from django.conf import settings
 
-from oauth2_login.oauth2_utils import update_user_details, associate_oauth2, IdentityAlreadyClaimed
-from oauth2_login.oauth2_utils import create_user_from_oauth2, _extract_user_details, get_profile
-from oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
+from django_gapps_oauth2_login.oauth2_utils import update_user_details, associate_oauth2, IdentityAlreadyClaimed
+from django_gapps_oauth2_login.oauth2_utils import create_user_from_oauth2, _extract_user_details, get_profile
+from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
 from mock import patch
 
-import oauth2_login
+import django_gapps_oauth2_login
 user_created_via_oauth2.receivers = []
 redirect_user_loggedin_via_oauth2.receivers = []
 
@@ -22,7 +22,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user_created_via_oauth2.connect(dummy_signal_receiver, dispatch_uid='dummy_signal_receiver')
         user_created_via_oauth2.send(sender=User, instance='test__323_string')
 
-    @patch.object(oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
     def test_new_user_created_signal_sent(self, mock_extract_user_details):
         def new_user_created_sig_receiver(sender, instance, **kwargs):
             user = instance
@@ -47,7 +47,7 @@ class TestGappsOauth2Login(unittest.TestCase):
     def test_oauth2_callback_url_provided(self):
         pass
 
-    @patch.object(oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
     def test_extract_user_details(self, mock_requests_get):
         mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@abcd.com', 'hd':'abcd.com'}
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
@@ -62,7 +62,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(details, expected_details)
 
     # http://alexmarandon.com/articles/python_mock_gotchas/
-    @patch.object(oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
     def test_create_user_from_oauth2_case1(self, mock_extract_user_details):
         mock_extract_user_details.return_value = {'first_name': 'vivek',
                 'last_name': 'chand',
@@ -73,7 +73,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user = create_user_from_oauth2(oauth2_response)
         user.delete()
 
-    @patch.object(oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
     def test_create_user_from_oauth2_case2(self, mock_extract_user_details):
         mock_extract_user_details.return_value = {'first_name': 'vivek',
                 'last_name': 'chand',
@@ -87,7 +87,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user = create_user_from_oauth2(oauth2_response)
         user.delete()
 
-    @patch.object(oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
     def test_create_user_from_oauth2_case3(self, mock_extract_user_details):
         mock_extract_user_details.return_value = {'first_name': 'vivek',
                 'last_name': 'chand'}
@@ -97,7 +97,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user = create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
 
-    @patch.object(oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
     def test_create_user_from_oauth2_case3(self, mock_extract_user_details):
         mock_extract_user_details.return_value = { 'first_name': 'vivek',
                 'last_name': 'chand', 'email': '' }
