@@ -3,7 +3,7 @@ Django Google Apps Oauth2 Login:
 
 1. `git clone https://github.com/Aplopio/django_gapps_oauth2_login.git`
 
-2. Add <b>client_secrets.json</b> provided by google cloud console credentials to be placed in this directory.
+2. Download client secrets in json provided by google cloud console credentials & rename to <b>client_secrets.json</b> in this directory.
 
 3. Add 'django_gapps_oauth2_login' to INSTALLED_APPS in settings.py
  
