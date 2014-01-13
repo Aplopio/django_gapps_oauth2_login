@@ -15,10 +15,6 @@ Once the user is authenticated, a signal is raised "redirect_user_loggedin_via_o
 
 You will have to hook up appropriate receivers for these signals
 
-We will have a signal receiver in UserManager which creates the client if he is first user & creates userprofile the user.
-
-If he is not first user a userprofile is created for the user.
-
 It needs client_secrets.json provided by google cloud console to be placed in this directory.
 
 
