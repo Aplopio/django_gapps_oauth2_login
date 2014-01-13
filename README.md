@@ -1,13 +1,21 @@
 Django Google Apps Oauth2 Login:
 --------------------------------
 
-`git clone https://github.com/Aplopio/django-gapps-oauth2-login.git`
+1. `git clone https://github.com/Aplopio/django-gapps-oauth2-login.git`
 
-Add 'django-gapps-oauth2-login' to INSTALLED_APPS in settings.py
+2. Add 'django-gapps-oauth2-login' to INSTALLED_APPS in settings.py
 
-run `python manage.py syncdb`
+3. Update urls.py by adding following entry: 
+
+  `(r'^oauth2/', include('django-gapps-oauth2-login.urls'))`
+
+4. run `python manage.py syncdb`
+
+5. Write custom receivers for <b>user_created_via_oauth2</b> & <b>redirect_user_loggedin_via_oauth2</b> signals
 
 -----------------------------------------------------
+Google Apss Oauth2 Flow:
+------------------------
  
 Oauth2 Login module has two views login_begin & auth_required.
 
