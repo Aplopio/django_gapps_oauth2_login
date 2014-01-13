@@ -10,7 +10,9 @@ auth_required - this view is called by google after proper authentication ( we g
 For the first time when a user installs recruiterbox google app, it lands to login_begin & after taking appropriate authentication access, it get's redirected to auth_required view.
 
 Once the user is created, a signal is raised "user_created_via_oauth2".
+
 Once the user is authenticated, a signal is raised "redirect_user_loggedin_via_oauth2".
+
 You will have to hook up appropriate receivers for these signals
 
 We will have a signal receiver in UserManager which creates the client if he is first user & creates userprofile the user.
