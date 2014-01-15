@@ -3,6 +3,7 @@ import requests
 from django.contrib.auth.models import User
 from django_gapps_oauth2_login.signals import user_created_via_oauth2
 from django_gapps_oauth2_login.models import *
+from django.http import HttpResponseBadRequest
 
 class IdentityAlreadyClaimed(Exception):
     pass
@@ -24,6 +25,9 @@ def _extract_user_details(oauth2_response):
         first_name = u''
         last_name = fullname
     apps_domain = profile.get('hd')
+
+    if not apps_domain:
+        return HttpResponseBadRequest('Not a Google Apps Domain User!')
 
     return dict(email=email, first_name=first_name,
         last_name=last_name, fullname=fullname, apps_domain=apps_domain)
