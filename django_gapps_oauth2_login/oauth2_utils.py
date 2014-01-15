@@ -65,7 +65,7 @@ def associate_oauth2(user, oauth2_response):
     return user_oauth2
 
 
-def create_user_from_oauth2(oauth2_response):
+def get_or_create_user_from_oauth2(oauth2_response):
     details = _extract_user_details(oauth2_response)
     if not details:
         return None

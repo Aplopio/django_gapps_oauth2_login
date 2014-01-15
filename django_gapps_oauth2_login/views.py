@@ -9,7 +9,7 @@ from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
 
 from django_gapps_oauth2_login.signals import redirect_user_loggedin_via_oauth2
-from django_gapps_oauth2_login.oauth2_utils import create_user_from_oauth2
+from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2
 from django_gapps_oauth2_login.models import *
 
 
@@ -59,7 +59,7 @@ def auth_required(request):
 
     credential = FLOW.step2_exchange(request.REQUEST)
 
-    user = create_user_from_oauth2( credential.token_response )
+    user = get_or_create_user_from_oauth2( credential.token_response )
     if not user:
         return  HttpResponseBadRequest('Access Denied! You are not authenticated as a Google Apps user.')
 
