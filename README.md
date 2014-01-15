@@ -1,15 +1,15 @@
 Django Google Apps Oauth2 Login:
 --------------------------------
 
-1. `git clone https://github.com/Aplopio/django_gapps_oauth2_login.git`
-
-2. Download client secrets in json provided by google cloud console credentials & introduce the following settings variables
+1. Go to google cloud console -> Your Project -> credentials & introduce the following settings variables with the values from the client credentials page:
    `GAPPS_CLIENT_ID`,
    `GAPPS_CLIENT_SECRET`,
    `GAPPS_REDIRECT_URI`,
    `GAPPS_TOKEN_URI`,
    `GAPPS_AUTH_URI` &
    `GAPPS_SCOPE`
+
+2. pip install https://github.com/Aplopio/django_gapps_oauth2_login/archive/master.zip
 
 
 3. Add 'django_gapps_oauth2_login' to INSTALLED_APPS in settings.py
