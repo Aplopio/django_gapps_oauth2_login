@@ -54,7 +54,7 @@ def auth_required(request):
         return  HttpResponseBadRequest('Who are you?')
 
     error = request.get('error')
-    if error not in [None, ''] and error='access_denied':
+    if error not in [None, ''] and error=='access_denied':
         return  HttpResponseBadRequest('Access Denied!')
 
     credential = FLOW.step2_exchange(request.REQUEST)
