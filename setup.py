@@ -38,5 +38,5 @@ setup(name='django_gapps_oauth2_login',
       ],
       keywords = ["django ", "query", "search"],
       packages = ['django_gapps_oauth2_login'],
-      install_requires = ['google-api-python-client==1.2'],        
+      install_requires = ['google-api-python-client==1.2'], 
       )

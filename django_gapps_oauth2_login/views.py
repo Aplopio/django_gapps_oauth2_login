@@ -53,7 +53,7 @@ def auth_required(request):
                                  request.user):
         return  HttpResponseBadRequest('Who are you?')
 
-    error = request.get('error')
+    error = request.GET.get('error')
     if error not in [None, ''] and error=='access_denied':
         return  HttpResponseBadRequest('Access Denied!')
 
