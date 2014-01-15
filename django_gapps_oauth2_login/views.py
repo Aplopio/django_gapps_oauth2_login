@@ -13,20 +13,17 @@ from django_gapps_oauth2_login.oauth2_utils import create_user_from_oauth2
 from django_gapps_oauth2_login.models import *
 
 
-CLIENT_SECRETS = os.path.join(os.path.dirname(__file__), '', 'client_secrets.json')
-CLIENT_SECRETS  = json.loads(open(CLIENT_SECRETS, 'r').read())['web']
-
 constructor_kwargs = {
-    'redirect_uri': CLIENT_SECRETS['redirect_uris'][0],
-    'auth_uri': CLIENT_SECRETS['auth_uri'],
-    'token_uri': CLIENT_SECRETS['token_uri'],
+    'redirect_uri': getattr(settings, "GAPPS_REDIRECT_URI", None),
+    'auth_uri': getattr(settings, "GAPPS_AUTH_URI", None),
+    'token_uri': getattr(settings, "GAPPS_TOKEN_URI", None),
     'access_type' : 'online'
 }
 
 FLOW = OAuth2WebServerFlow(
-        client_id=CLIENT_SECRETS['client_id'],
-        client_secret=CLIENT_SECRETS['client_secret'],
-        scope='https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+        client_id=getattr(settings, "GAPPS_CLIENT_ID", None),
+        client_secret=getattr(settings, "GAPPS_CLIENT_SECRET", None),
+        scope=getattr(settings, "GAPPS_SCOPE", None),
         **constructor_kwargs
         )
 
