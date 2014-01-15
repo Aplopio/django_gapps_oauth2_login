@@ -27,7 +27,7 @@ def _extract_user_details(oauth2_response):
     apps_domain = profile.get('hd')
 
     if not apps_domain:
-        return HttpResponseBadRequest('Not a Google Apps Domain User!')
+        return None
 
     return dict(email=email, first_name=first_name,
         last_name=last_name, fullname=fullname, apps_domain=apps_domain)
@@ -67,6 +67,9 @@ def associate_oauth2(user, oauth2_response):
 
 def create_user_from_oauth2(oauth2_response):
     details = _extract_user_details(oauth2_response)
+    if not details:
+        return None
+
     email = details.get('email')
     if email in [None, '']:
         return None

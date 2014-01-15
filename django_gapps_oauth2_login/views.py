@@ -51,7 +51,7 @@ def login_begin(request):
 def auth_required(request):
     if not xsrfutil.validate_token(settings.SECRET_KEY, request.REQUEST['state'],
                                  request.user):
-        return  HttpResponseBadRequest('Who are you?')
+        return  HttpResponseBadRequest('Who are you? Access Denied!')
 
     error = request.GET.get('error')
     if error not in [None, ''] and error=='access_denied':
@@ -60,6 +60,8 @@ def auth_required(request):
     credential = FLOW.step2_exchange(request.REQUEST)
 
     user = create_user_from_oauth2( credential.token_response )
+    if not user:
+        return  HttpResponseBadRequest('Access Denied! You are not authenticated as a Google Apps user.')
 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     storage.put(credential)
