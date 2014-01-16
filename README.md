@@ -25,7 +25,7 @@ Django Google Apps Oauth2 Login:
 -----------------------------------------------------
 Writing a custom receiver:
 --------------------------
-```
+```python
    from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
    def create_user_via_oauth2_recvr(sender, instance, **kwargs):
        user = instance
