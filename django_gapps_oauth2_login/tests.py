@@ -41,6 +41,15 @@ class TestGappsOauth2Login(unittest.TestCase):
         user = get_or_create_user_from_oauth2(oauth2_response)
         user.delete()
 
+    def test_settings_variables_defined(self):
+        assert getattr(settings, "GAPPS_REDIRECT_URI", None) != None
+        assert getattr(settings, "GAPPS_AUTH_URI", None) != None
+        assert getattr(settings, "GAPPS_TOKEN_URI", None) != None
+        assert getattr(settings, "GAPPS_CLIENT_ID", None) != None
+        assert getattr(settings, "GAPPS_CLIENT_SECRET", None) != None
+        assert getattr(settings, "GAPPS_SCOPE", None) != None
+
+
     def test_oauth2_login_url_provided(self):
         pass
 
