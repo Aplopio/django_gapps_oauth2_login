@@ -34,7 +34,7 @@ def create_user_via_oauth2_recvr(sender, instance, **kwargs):
 def redirect_user_logged_in_via_oauth2_recvr(sender, instance, **kwargs):
     user = instance
     # do what you want after user logged in
-    return HttpResponseRedirect('inside your app')
+    return HttpResponseRedirect('/inside_your_app')
    
 user_created_via_oauth2.connect( create_user_via_oauth2_recvr, 
                   dispatch_uid='signal_for_creating_userprofile' )
