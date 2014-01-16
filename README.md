@@ -26,20 +26,20 @@ Django Google Apps Oauth2 Login:
 Writing a custom receiver:
 --------------------------
 ```python
-   from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
-   def create_user_via_oauth2_recvr(sender, instance, **kwargs):
-       user = instance
-       # do what you want after user creation      
+from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
+def create_user_via_oauth2_recvr(sender, instance, **kwargs):
+    user = instance
+    # do what you want after user creation      
    
-   def redirect_user_logged_in_via_oauth2_recvr(sender, instance, **kwargs):
-       user = instance
-       # do what you want after user logged in
-       return HttpResponseRedirect('inside your app')
+def redirect_user_logged_in_via_oauth2_recvr(sender, instance, **kwargs):
+    user = instance
+    # do what you want after user logged in
+    return HttpResponseRedirect('inside your app')
    
-   user_created_via_oauth2.connect( create_user_via_oauth2_recvr, 
-                     dispatch_uid='signal_for_creating_userprofile' )
-   redirect_user_loggedin_via_oauth2.connect( redirect_user_logged_in_via_oauth2_recvr,
-                     dispatch_uid='signal_to_redirect_user_loggedin_via_oauth2' )
+user_created_via_oauth2.connect( create_user_via_oauth2_recvr, 
+                  dispatch_uid='signal_for_creating_userprofile' )
+redirect_user_loggedin_via_oauth2.connect( redirect_user_logged_in_via_oauth2_recvr,
+                  dispatch_uid='signal_to_redirect_user_loggedin_via_oauth2' )
 ```
 -----------------------------------------------------
 
