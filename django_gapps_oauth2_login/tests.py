@@ -42,12 +42,12 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.delete()
 
     def test_settings_variables_defined(self):
-        assert getattr(settings, "GAPPS_REDIRECT_URI", None) != None
-        assert getattr(settings, "GAPPS_AUTH_URI", None) != None
-        assert getattr(settings, "GAPPS_TOKEN_URI", None) != None
-        assert getattr(settings, "GAPPS_CLIENT_ID", None) != None
-        assert getattr(settings, "GAPPS_CLIENT_SECRET", None) != None
-        assert getattr(settings, "GAPPS_SCOPE", None) != None
+        self.assertNotEqual(getattr(settings, "GAPPS_REDIRECT_URI", None), None)
+        self.assertNotEqual(getattr(settings, "GAPPS_AUTH_URI", None), None)
+        self.assertNotEqual(getattr(settings, "GAPPS_TOKEN_URI", None), None)
+        self.assertNotEqual(getattr(settings, "GAPPS_CLIENT_ID", None), None)
+        self.assertNotEqual(getattr(settings, "GAPPS_CLIENT_SECRET", None), None)
+        self.assertNotEqual(getattr(settings, "GAPPS_SCOPE", None), None)
 
 
     def test_oauth2_login_url_provided(self):
