@@ -4,7 +4,7 @@ from django_gapps_oauth2_login.views import *
 from django.conf import settings
 
 from django_gapps_oauth2_login.oauth2_utils import update_user_details, associate_oauth2, IdentityAlreadyClaimed
-from django_gapps_oauth2_login.oauth2_utils import create_user_from_oauth2, _extract_user_details, get_profile
+from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2, _extract_user_details, get_profile
 from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
 from mock import patch
 
@@ -38,7 +38,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
-        user = create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
         user.delete()
 
     def test_oauth2_login_url_provided(self):
@@ -70,7 +70,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
-        user = create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
         user.delete()
 
     @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
@@ -81,10 +81,10 @@ class TestGappsOauth2Login(unittest.TestCase):
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
-        user = create_user_from_oauth2(oauth2_response)
-        user = create_user_from_oauth2(oauth2_response)
-        user = create_user_from_oauth2(oauth2_response)
-        user = create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
         user.delete()
 
     @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
@@ -94,7 +94,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
-        user = create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
 
     @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
@@ -104,7 +104,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
-        user = create_user_from_oauth2(oauth2_response)
+        user = get_or_create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
 
     def test_associate_oauth2_case1(self):
