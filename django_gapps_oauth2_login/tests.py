@@ -6,8 +6,10 @@ from django.conf import settings
 from django_gapps_oauth2_login.oauth2_utils import update_user_details, associate_oauth2, IdentityAlreadyClaimed
 from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2, _extract_user_details, get_profile
 from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
+from django.http import HttpResponseRedirect
 from mock import patch
 
+import oauth2client
 import django_gapps_oauth2_login
 user_created_via_oauth2.receivers = []
 redirect_user_loggedin_via_oauth2.receivers = []
@@ -50,14 +52,8 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertNotEqual(getattr(settings, "GAPPS_SCOPE", None), None)
 
 
-    def test_oauth2_login_url_provided(self):
-        pass
-
-    def test_oauth2_callback_url_provided(self):
-        pass
-
     @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
-    def test_extract_user_details(self, mock_requests_get):
+    def test_extract_user_details_case1(self, mock_requests_get):
         mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@abcd.com', 'hd':'abcd.com'}
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
@@ -69,6 +65,14 @@ class TestGappsOauth2Login(unittest.TestCase):
                             'email': 'vivek.chand@abcd.com'
                            }
         self.assertEqual(details, expected_details)
+
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    def test_extract_user_details_case2(self, mock_requests_get):
+        mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@gmail.com' }
+        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+        details = _extract_user_details(oauth2_response)
+        self.assertEqual(details, None)
 
     # http://alexmarandon.com/articles/python_mock_gotchas/
     @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
@@ -110,6 +114,15 @@ class TestGappsOauth2Login(unittest.TestCase):
     def test_create_user_from_oauth2_case3(self, mock_extract_user_details):
         mock_extract_user_details.return_value = { 'first_name': 'vivek',
                 'last_name': 'chand', 'email': '' }
+        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+
+        user = get_or_create_user_from_oauth2(oauth2_response)
+        self.assertEqual(user, None)
+
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
+    def test_create_user_from_oauth2_case4(self, mock_extract_user_details):
+        mock_extract_user_details.return_value = None
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
@@ -184,6 +197,137 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(user.username, 'ram.lal@abcd.com')
         user.delete()
 
+    def test_login_begin_redirect(self):
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+        request.user = user
+        auth_redirect_response = login_begin(request)
+        self.assertEqual(auth_redirect_response.status_code, 302)
+        self.assertTrue('https://accounts.google.com/o/oauth2/auth?state=' in auth_redirect_response.get('Location'))
+        user.delete()
+
+    @patch.object(oauth2client.django_orm.Storage, 'get')
+    def test_login_begin_has_credential(self, mock_get):
+        def redirect_user_loggedin_via_oauth2_recvr(sender, instance, **kwargs):
+            user = instance
+            # Do whatever you want!
+            return HttpResponseRedirect('/somewhere')
+
+        redirect_user_loggedin_via_oauth2.connect( redirect_user_loggedin_via_oauth2_recvr, dispatch_uid='redirect_signal')
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+        user_oauth2 = UserOauth2.objects.create( user=user, claimed_id=oauth2_response.get('access_token'),
+                    display_id=oauth2_response.get('id_token').get('id') )
+
+        class credential:
+            token_response = oauth2_response
+            invalid = False
+
+        mock_get.return_value = credential()
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.user = user
+        redirect_response = login_begin(request)
+
+        self.assertEqual(redirect_response.status_code, 302)
+        self.assertTrue(redirect_response.get('Location'), '/somewhere')
+        user.delete()
+
+
+    def test_auth_required_error(self):
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
+        }
+        request.GET = {
+            'error':'access_denied',
+        }
+        request.user = user
+        response = auth_required(request)
+        self.assertEqual(response.content, 'Access Denied!')
+        self.assertEqual(response.status_code, 400)
+        user.delete()
+
+    def test_auth_required_invalid_state(self):
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': 'abcd',
+        }
+        request.GET = {
+            'error':'access_denied',
+        }
+
+        request.user = user
+        response = auth_required(request)
+        self.assertEqual(response.content, 'Who are you? Access Denied!')
+        self.assertEqual(response.status_code, 400)
+        user.delete()
+
+    @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step2_exchange')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    def test_auth_required_get_or_create_throws_None(self, mock_requests_get, mock_step2_exchange):
+        mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@abcd.com'}
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+
+        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+        user_oauth2 = UserOauth2.objects.create( user=user, claimed_id=oauth2_response.get('access_token'),
+                    display_id=oauth2_response.get('id_token').get('id') )
+
+        class credential:
+            token_response = oauth2_response
+            invalid = False
+
+        mock_step2_exchange.return_value = credential()
+
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
+        }
+        request.user = user
+
+        response = auth_required(request)
+        self.assertEqual(response.content, 'Access Denied! You are not authenticated as a Google Apps user.')
+        self.assertEqual(response.status_code, 400)
+        user_oauth2.delete()
+        user.delete()
+
     def test_make_a_request(self):
         request = HttpRequest()
         request.META = {
@@ -201,4 +345,4 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         redirect_resp = login_begin(request)
         bad_response = auth_required(request)
-
+        user.delete()
