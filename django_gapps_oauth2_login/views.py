@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from oauth2client import xsrfutil
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
+from oauth2client.client import FlowExchangeError
 
 from django_gapps_oauth2_login.signals import redirect_user_loggedin_via_oauth2
 from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2
@@ -58,7 +59,10 @@ def auth_required(request):
         if error == 'access_denied':
             return  HttpResponseBadRequest('Access Denied!')
 
-    credential = FLOW.step2_exchange(request.REQUEST)
+    try:
+        credential = FLOW.step2_exchange(request.REQUEST)
+    except FlowExchangeError, e:
+        return HttpResponseBadRequest('Access Denied:' + e)
 
     user = get_or_create_user_from_oauth2( credential.token_response )
     if not user:
