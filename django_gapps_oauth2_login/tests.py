@@ -34,6 +34,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             # Do whatever you want!
 
         user_created_via_oauth2.connect(new_user_created_sig_receiver, dispatch_uid='new_user_created_sig_receiver')
+
         mock_extract_user_details.return_value = {'first_name': 'Vivek',
                 'last_name': 'Chand',
                 'email':'vivek.chand@abcd.com'}
@@ -220,6 +221,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             return HttpResponseRedirect('/somewhere')
 
         redirect_user_loggedin_via_oauth2.connect( redirect_user_loggedin_via_oauth2_recvr, dispatch_uid='redirect_signal')
+
         user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
         user.save()
 
@@ -244,6 +246,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         self.assertEqual(redirect_response.status_code, 302)
         self.assertTrue(redirect_response.get('Location'), '/somewhere')
+
         user.delete()
 
 
@@ -265,8 +268,10 @@ class TestGappsOauth2Login(unittest.TestCase):
         }
         request.user = user
         response = auth_required(request)
+
         self.assertEqual(response.content, 'Access Denied!')
         self.assertEqual(response.status_code, 400)
+
         user.delete()
 
     def test_auth_required_invalid_state(self):
@@ -288,8 +293,10 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         request.user = user
         response = auth_required(request)
+
         self.assertEqual(response.content, 'Who are you? Access Denied!')
         self.assertEqual(response.status_code, 400)
+
         user.delete()
 
     @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step2_exchange')
@@ -298,7 +305,6 @@ class TestGappsOauth2Login(unittest.TestCase):
         mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@abcd.com'}
         user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
         user.save()
-
 
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
@@ -326,6 +332,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         self.assertEqual(response.content, 'Access Denied! You are not authenticated as a Google Apps user.')
         self.assertEqual(response.status_code, 400)
+
         user_oauth2.delete()
         user.delete()
 
@@ -347,8 +354,8 @@ class TestGappsOauth2Login(unittest.TestCase):
             return HttpResponseRedirect('/somewhere')
 
         redirect_user_loggedin_via_oauth2.connect( redirect_user_loggedin_via_oauth2_recvr, dispatch_uid='redirect_signal')
-
         user_created_via_oauth2.connect(new_user_created_sig_receiver, dispatch_uid='new_user_created_sig_receiver')
+
         user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
         user.save()
 
@@ -375,6 +382,8 @@ class TestGappsOauth2Login(unittest.TestCase):
         mock_step2_exchange.return_value = credential()
 
         response = auth_required(request)
+        self.assertEqual(response.get('Location'), '/somewhere')
+        self.assertEqual(response.status_code, 302)
 
         user.delete()
         User.objects.get(username='vivek.chand@abcd.com').delete()
@@ -390,11 +399,15 @@ class TestGappsOauth2Login(unittest.TestCase):
         request.REQUEST = {
             'state': settings.SECRET_KEY
         }
+
         user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
         user.save()
-
         request.user = user
 
         redirect_resp = login_begin(request)
         bad_response = auth_required(request)
+
+        self.assertEqual(bad_response.content, 'Who are you? Access Denied!')
+        self.assertEqual(bad_response.status_code, 400)
+
         user.delete()
