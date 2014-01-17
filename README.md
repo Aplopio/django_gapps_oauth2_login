@@ -20,7 +20,9 @@ Django Google Apps Oauth2 Login:
 
 5. run `python manage.py syncdb`
 
-6. Write custom receivers for <b>user_created_via_oauth2</b> & <b>redirect_user_loggedin_via_oauth2</b> signals
+6. Write custom receivers for <b>user_created_via_oauth2</b> & <b>redirect_user_loggedin_via_oauth2</b> signals.
+
+7. Run testcases, `python manage.py test django_gapps_oauth2_login`
 
 -----------------------------------------------------
 Writing a custom receiver:
@@ -42,7 +44,6 @@ redirect_user_loggedin_via_oauth2.connect( redirect_user_logged_in_via_oauth2_re
                   dispatch_uid='signal_to_redirect_user_loggedin_via_oauth2' )
 ```
 -----------------------------------------------------
-
 Google Apps Oauth2 Flow:
 ------------------------
  
