@@ -25,7 +25,7 @@ Django Google Apps Oauth2 Login:
 7. Run testcases, `python manage.py test django_gapps_oauth2_login`
 
 -----------------------------------------------------
-Writing a custom receiver:
+Writing custom receivers:
 --------------------------
 ```python
 from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
