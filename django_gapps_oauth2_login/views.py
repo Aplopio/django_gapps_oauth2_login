@@ -54,15 +54,10 @@ def auth_required(request):
                                  request.user):
         return  HttpResponseBadRequest('Who are you? Access Denied!')
 
-    error = request.GET.get('error')
-    if error not in [None, '']:
-        if error == 'access_denied':
-            return  HttpResponseBadRequest('Access Denied!')
-
     try:
         credential = FLOW.step2_exchange(request.REQUEST)
     except FlowExchangeError, e:
-        return HttpResponseBadRequest('Access Denied:' + e)
+        return HttpResponseBadRequest('Access Denied:' + e.message)
 
     user = get_or_create_user_from_oauth2( credential.token_response )
     if not user:

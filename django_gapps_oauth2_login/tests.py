@@ -269,7 +269,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         request.user = user
         response = auth_required(request)
 
-        self.assertEqual(response.content, 'Access Denied!')
+        self.assertEqual(response.content, 'Access Denied:No code was supplied in the query parameters.')
         self.assertEqual(response.status_code, 400)
 
         user.delete()
@@ -286,9 +286,6 @@ class TestGappsOauth2Login(unittest.TestCase):
         }
         request.REQUEST = {
             'state': 'abcd',
-        }
-        request.GET = {
-            'error':'access_denied',
         }
 
         request.user = user
@@ -387,6 +384,59 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         user.delete()
         User.objects.get(username='vivek.chand@abcd.com').delete()
+
+    @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step2_exchange')
+    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(oauth2client.django_orm.Storage, 'put')
+    def test_raise_flow_exchange_error(self, mock_storage_put, mock_requests_get, mock_step2_exchange):
+        def new_user_created_sig_receiver(sender, instance, **kwargs):
+            user = instance
+            assert user.first_name == 'Vivek'
+            assert user.last_name == 'Chand'
+            assert user.username == 'vivek.chand@abcd.com'
+            # Do whatever you want!
+
+        def redirect_user_loggedin_via_oauth2_recvr(sender, instance, **kwargs):
+            user = instance
+            # Do whatever you want!
+            return HttpResponseRedirect('/somewhere')
+
+        redirect_user_loggedin_via_oauth2.connect( redirect_user_loggedin_via_oauth2_recvr, dispatch_uid='redirect_signal')
+        user_created_via_oauth2.connect(new_user_created_sig_receiver, dispatch_uid='new_user_created_sig_receiver')
+
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+        mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@abcd.com', 'hd': 'abcd.com'}
+
+        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
+        }
+        request.user = user
+
+        class credential:
+            token_response = oauth2_response
+            invalid = False
+
+        def side_effect(arg):
+            raise FlowExchangeError('invalid_token')
+        mock_step2_exchange.side_effect = side_effect
+
+        response = auth_required(request)
+
+        self.assertEqual(response.content, 'Access Denied:invalid_token')
+        self.assertEqual(response.status_code, 400)
+
+        user.delete()
 
 
     def test_make_a_request(self):
