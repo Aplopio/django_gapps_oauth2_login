@@ -10,7 +10,7 @@ from oauth2client.django_orm import Storage
 from oauth2client.client import FlowExchangeError
 
 from django_gapps_oauth2_login.signals import redirect_user_loggedin_via_oauth2
-from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2, get_authorize_url
+from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2, redirect_to_authorize_url
 from django_gapps_oauth2_login.models import *
 
 
@@ -36,11 +36,11 @@ def login_begin(request):
         return HttpResponseBadRequest('OAuth2 Login Error: Google Apps Domain Not Sepcified')
 
     if credential is None or credential.invalid == True:
-        return get_authorize_url(request, FLOW, domain)
+        return redirect_to_authorize_url(request, FLOW, domain)
     else:
         oauth2_response = credential.token_response
         if oauth2_response.get('id_token').get('hd') != domain:
-            return get_authorize_url(request, FLOW, domain)
+            return redirect_to_authorize_url(request, FLOW, domain)
 
         user_oauth2 = UserOauth2.objects.get(
             google_id__exact=oauth2_response.get('id_token').get('id'))

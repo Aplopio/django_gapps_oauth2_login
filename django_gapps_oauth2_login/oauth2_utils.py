@@ -92,7 +92,7 @@ def get_or_create_user_from_oauth2(oauth2_response):
     else:
         return None
 
-def get_authorize_url(request, FLOW, domain):
+def redirect_to_authorize_url(request, FLOW, domain):
     FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
                                                         request.user)
     FLOW.params['hd'] = domain
