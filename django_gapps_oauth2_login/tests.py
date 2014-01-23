@@ -548,6 +548,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         self.assertEqual(redirect_response.status_code, 302)
         self.assertTrue('https://accounts.google.com/o/oauth2/auth?state=' in redirect_response.get('Location'))
+        self.assertTrue('hd=vivekchand.info' in redirect_response.get('Location'))
 
         user.delete()
 
