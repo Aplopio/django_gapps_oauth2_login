@@ -10,5 +10,4 @@ class CredentialsModel(models.Model):
 
 class UserOauth2(models.Model):
     user = models.ForeignKey(User, related_name="oauth2_user")
-    claimed_id = models.TextField(max_length=2047)
-    display_id = models.TextField(max_length=2047)
+    google_id = models.CharField(max_length=50, db_index=True)

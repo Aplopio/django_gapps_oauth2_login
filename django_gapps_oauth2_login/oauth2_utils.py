@@ -51,11 +51,10 @@ def update_user_details(user, details):
 def associate_oauth2(user, oauth2_response):
     try:
         user_oauth2 = UserOauth2.objects.get(
-            claimed_id__exact=oauth2_response.get('access_token'))
+            google_id__exact=oauth2_response.get('id_token').get('id'))
     except UserOauth2.DoesNotExist:
         user_oauth2 = UserOauth2.objects.create(user=user,
-            claimed_id=oauth2_response.get('access_token'),
-            display_id=oauth2_response.get('id_token').get('id'))
+            google_id=oauth2_response.get('id_token').get('id'))
     else:
         if user != user_oauth2.user:
             raise IdentityAlreadyClaimed(

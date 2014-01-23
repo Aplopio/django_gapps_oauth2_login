@@ -40,7 +40,7 @@ def login_begin(request):
     else:
         oauth2_response = credential.token_response
         user_oauth2 = UserOauth2.objects.get(
-            claimed_id__exact=oauth2_response.get('access_token'))
+            google_id__exact=oauth2_response.get('id_token').get('id'))
 
         user = user_oauth2.user
 
