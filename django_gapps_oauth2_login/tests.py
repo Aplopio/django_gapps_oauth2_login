@@ -5,6 +5,7 @@ from django.conf import settings
 
 from django_gapps_oauth2_login.oauth2_utils import update_user_details, associate_oauth2, IdentityAlreadyClaimed
 from django_gapps_oauth2_login.oauth2_utils import get_or_create_user_from_oauth2, _extract_user_details, get_profile
+from django_gapps_oauth2_login.oauth2_utils import redirect_to_authorize_url
 from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
 from django.http import HttpResponseRedirect
 from mock import patch
@@ -487,3 +488,66 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(bad_response.status_code, 400)
 
         user.delete()
+
+    @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step1_get_authorize_url')
+    def test_redirect_to_authorize_url(self, mock_step1_get_authorize_url):
+        mock_step1_get_authorize_url.return_value = 'http://www.go_to_google.com/and/authenticate/and/come/back'
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': settings.SECRET_KEY
+        }
+
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+        request.user = user
+
+        domain = 'rajnikanth.com'
+        redirect_resp = redirect_to_authorize_url(request, FLOW, domain)
+        self.assertEqual(redirect_resp.get('Location'), 'http://www.go_to_google.com/and/authenticate/and/come/back')
+        self.assertEqual(redirect_resp.status_code, 302)
+        user.delete()
+
+
+    @patch.object(oauth2client.django_orm.Storage, 'get')
+    def test_login_begin_has_credential_different_domain(self, mock_get):
+        def redirect_user_loggedin_via_oauth2_recvr(sender, instance, **kwargs):
+            user = instance
+            # Do whatever you want!
+            return HttpResponseRedirect('/somewhere')
+
+        redirect_user_loggedin_via_oauth2.connect( redirect_user_loggedin_via_oauth2_recvr, dispatch_uid='redirect_signal')
+
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+
+        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423', 'hd':'rajnikanth.com'},  'and_some_more': 'blah_blah_blah'}
+        user_oauth2 = UserOauth2.objects.create( user=user, google_id=oauth2_response.get('id_token').get('id') )
+
+        class credential:
+            token_response = oauth2_response
+            invalid = False
+
+        mock_get.return_value = credential()
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'domain': 'vivekchand.info'
+        }
+        request.user = user
+        redirect_response = login_begin(request)
+
+        self.assertEqual(redirect_response.status_code, 302)
+        self.assertTrue('https://accounts.google.com/o/oauth2/auth?state=' in redirect_response.get('Location'))
+
+        user.delete()
+
