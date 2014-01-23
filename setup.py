@@ -17,6 +17,8 @@ Update urls.py by adding following entry:
 run python manage.py syncdb
 
 Write custom receivers for user_created_via_oauth2 & redirect_user_loggedin_via_oauth2 signals
+
+Run testcases, python manage.py test django_gapps_oauth2_login
 """
 
 setup(name='django_gapps_oauth2_login',
@@ -36,7 +38,7 @@ setup(name='django_gapps_oauth2_login',
           "Programming Language :: Python :: 2.6",
           "Programming Language :: Python :: 2.7",
       ],
-      keywords = ["django ", "query", "search"],
+      keywords = ["django ", "oauth2", "login"],
       packages = ['django_gapps_oauth2_login'],
       install_requires = ['google-api-python-client==1.2', 'mock==1.0.1'],
       )
