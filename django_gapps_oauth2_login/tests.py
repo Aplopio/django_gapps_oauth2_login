@@ -135,7 +135,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
         associate_oauth2(user, oauth2_response)
-        user_oauth2 = UserOauth2.objects.get(claimed_id__exact=oauth2_response.get('access_token'))
+        user_oauth2 = UserOauth2.objects.get(google_id__exact=oauth2_response.get('id_token').get('id'))
         self.assertEqual(user, user_oauth2.user)
         user_oauth2.user.delete()
 
@@ -145,8 +145,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
-        user_oauth2 = UserOauth2.objects.create( user=user1, claimed_id=oauth2_response.get('access_token'),
-                    display_id=oauth2_response.get('id_token').get('id') )
+        user_oauth2 = UserOauth2.objects.create( user=user1, google_id=oauth2_response.get('id_token').get('id') )
 
         try:
             associate_oauth2(user2, oauth2_response)
@@ -227,8 +226,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
-        user_oauth2 = UserOauth2.objects.create( user=user, claimed_id=oauth2_response.get('access_token'),
-                    display_id=oauth2_response.get('id_token').get('id') )
+        user_oauth2 = UserOauth2.objects.create( user=user, google_id=oauth2_response.get('id_token').get('id') )
 
         class credential:
             token_response = oauth2_response
@@ -305,8 +303,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
-        user_oauth2 = UserOauth2.objects.create( user=user, claimed_id=oauth2_response.get('access_token'),
-                    display_id=oauth2_response.get('id_token').get('id') )
+        user_oauth2 = UserOauth2.objects.create( user=user, google_id=oauth2_response.get('id_token').get('id') )
 
         class credential:
             token_response = oauth2_response
