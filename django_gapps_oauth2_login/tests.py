@@ -112,7 +112,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(user, None)
 
     @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
-    def test_create_user_from_oauth2_case3(self, mock_extract_user_details):
+    def test_create_user_from_oauth2_case4(self, mock_extract_user_details):
         mock_extract_user_details.return_value = { 'first_name': 'vivek',
                 'last_name': 'chand', 'email': '' }
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
@@ -122,7 +122,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(user, None)
 
     @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
-    def test_create_user_from_oauth2_case4(self, mock_extract_user_details):
+    def test_create_user_from_oauth2_case5(self, mock_extract_user_details):
         mock_extract_user_details.return_value = None
         oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
@@ -204,6 +204,9 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
+        request.REQUEST = {
+            'domain': 'vivekchand.info'
+        }
         user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
         user.save()
         request.user = user
@@ -238,6 +241,9 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_NAME': 'testserver',
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'domain': 'vivekchand.info'
         }
         request.user = user
         redirect_response = login_begin(request)
@@ -436,7 +442,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.delete()
 
 
-    def test_make_a_request(self):
+    def test_no_domain_specified(self):
         request = HttpRequest()
         request.META = {
             'SERVER_NAME': 'testserver',
@@ -451,7 +457,30 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.save()
         request.user = user
 
-        redirect_resp = login_begin(request)
+        bad_resp = login_begin(request)
+        self.assertEqual(bad_resp.content, 'OAuth2 Login Error: Google Apps Domain Not Sepcified')
+        self.assertEqual(bad_resp.status_code, 400)
+        user.delete()
+
+
+    def test_make_a_bad_request(self):
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': settings.SECRET_KEY
+        }
+
+        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user.save()
+        request.user = user
+
+        bad_response = login_begin(request)
+        self.assertEqual(bad_response.content, 'OAuth2 Login Error: Google Apps Domain Not Sepcified')
+        self.assertEqual(bad_response.status_code, 400)
         bad_response = auth_required(request)
 
         self.assertEqual(bad_response.content, 'Who are you? Access Denied!')

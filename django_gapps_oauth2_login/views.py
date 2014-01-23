@@ -31,14 +31,25 @@ FLOW = OAuth2WebServerFlow(
 def login_begin(request):
     storage = Storage(CredentialsModel, 'id', request.user.id, 'credential')
     credential = storage.get()
+    domain = request.REQUEST.get('domain')
+    if not domain:
+        return HttpResponseBadRequest('OAuth2 Login Error: Google Apps Domain Not Sepcified')
 
     if credential is None or credential.invalid == True:
         FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
                                                    request.user)
+        FLOW.params['hd'] = domain
         authorize_url = FLOW.step1_get_authorize_url()
         return HttpResponseRedirect(authorize_url)
     else:
         oauth2_response = credential.token_response
+        if oauth2_response.get('id_token').get('hd') != domain:
+            FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
+                                                       request.user)
+            FLOW.params['hd'] = domain
+            authorize_url = FLOW.step1_get_authorize_url()
+            return HttpResponseRedirect(authorize_url)
+
         user_oauth2 = UserOauth2.objects.get(
             google_id__exact=oauth2_response.get('id_token').get('id'))
 
@@ -59,7 +70,9 @@ def auth_required(request):
     except FlowExchangeError, e:
         return HttpResponseBadRequest('Access Denied:' + e.message)
 
-    user = get_or_create_user_from_oauth2( credential.token_response )
+    oauth2_response = credential.token_response
+
+    user = get_or_create_user_from_oauth2( oauth2_response )
     if not user:
         return  HttpResponseBadRequest('Access Denied! You are not authenticated as a Google Apps user.')
 
