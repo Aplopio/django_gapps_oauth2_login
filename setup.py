@@ -20,7 +20,7 @@ Write custom receivers for user_created_via_oauth2 & redirect_user_loggedin_via_
 """
 
 setup(name='django_gapps_oauth2_login',
-      version='0.8',
+      version='0.9',
       description='Django Google Apps Oauth2 Logi',
       long_description = long_description,
       author='Vivek Chand',
