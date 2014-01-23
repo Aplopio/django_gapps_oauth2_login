@@ -2,8 +2,10 @@ import json
 import requests
 from django.contrib.auth.models import User
 from django_gapps_oauth2_login.signals import user_created_via_oauth2
+from django.conf import settings
 from django_gapps_oauth2_login.models import *
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from oauth2client import xsrfutil
 
 class IdentityAlreadyClaimed(Exception):
     pass
@@ -90,3 +92,9 @@ def get_or_create_user_from_oauth2(oauth2_response):
     else:
         return None
 
+def get_authorize_url(request, FLOW, domain):
+    FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
+                                                        request.user)
+    FLOW.params['hd'] = domain
+    authorize_url = FLOW.step1_get_authorize_url()
+    return HttpResponseRedirect(authorize_url)
