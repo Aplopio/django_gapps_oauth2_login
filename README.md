@@ -59,7 +59,7 @@ Once the user is created, a signal is raised <b>`user_created_via_oauth2`</b>.
 
 Once the user is authenticated, a signal is raised <b>`redirect_user_loggedin_via_oauth2`</b>.
 
-You will have to hook up appropriate receivers for these signals
+All you will have to hook up appropriate receivers for these signals
 
 More here: http://wimprint.com/~vivek/log-52 and https://developers.google.com/api-client-library/python/guide/aaa_oauth
 
