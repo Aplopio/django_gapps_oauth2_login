@@ -9,10 +9,11 @@ Django Google Apps Oauth2 Login:
    `GAPPS_AUTH_URI` &
    `GAPPS_SCOPE`
 
-2. pip install https://github.com/Aplopio/django_gapps_oauth2_login/archive/v0.95.zip
+2. Define two more settings variables `GAPPS_LOGIN_SUCCESS_HANDLER` & `GAPPS_USER_FUNCTION` referring to the function locations in your app.
 
+3. pip install https://github.com/Aplopio/django_gapps_oauth2_login/archive/v0.95.zip
 
-3. Add 'django_gapps_oauth2_login' to INSTALLED_APPS in settings.py
+3. Add `django_gapps_oauth2_login` to INSTALLED_APPS in settings.py
  
 4. Update urls.py by adding following entry: 
 
@@ -20,29 +21,9 @@ Django Google Apps Oauth2 Login:
 
 5. run `python manage.py syncdb`
 
-6. Write custom receivers for <b>`user_created_via_oauth2`</b> & <b>`redirect_user_loggedin_via_oauth2`</b> signals.
+6. Run testcases, `python manage.py test django_gapps_oauth2_login`
 
-7. Run testcases, `python manage.py test django_gapps_oauth2_login`
 
------------------------------------------------------
-Writing custom receivers:
---------------------------
-```python
-from django_gapps_oauth2_login.signals import user_created_via_oauth2, redirect_user_loggedin_via_oauth2
-def create_user_via_oauth2_recvr(sender, instance, **kwargs):
-    user = instance
-    # do what you want after user creation      
-   
-def redirect_user_logged_in_via_oauth2_recvr(sender, instance, **kwargs):
-    user = instance
-    # do what you want after user logged in
-    return HttpResponseRedirect('/inside_your_app')
-   
-user_created_via_oauth2.connect( create_user_via_oauth2_recvr, 
-                  dispatch_uid='signal_for_creating_userprofile' )
-redirect_user_loggedin_via_oauth2.connect( redirect_user_logged_in_via_oauth2_recvr,
-                  dispatch_uid='signal_to_redirect_user_loggedin_via_oauth2' )
-```
 -----------------------------------------------------
 Google Apps Oauth2 Flow:
 ------------------------
@@ -55,11 +36,11 @@ Oauth2 Login module has two views login_begin & auth_required.
 
 For the first time when a user installs your google app, it lands to `login_begin` & after taking appropriate authentication access, it get's redirected to `auth_required` view.
 
-Once the user is created, a signal is raised <b>`user_created_via_oauth2`</b>.
+Once the user is created or referenced, <b>`GAPPS_USER_FUNCTION`</b>. is called
 
-Once the user is authenticated, a signal is raised <b>`redirect_user_loggedin_via_oauth2`</b>.
+Once the user is authenticated, <b>`GAPPS_LOGIN_SUCCESS_HANDLER`</b>. is called
 
-All you will have to hook up appropriate receivers for these signals
+All you will have to hook up appropriate functions for these signals
 
 More here: http://wimprint.com/~vivek/log-52 and https://developers.google.com/api-client-library/python/guide/aaa_oauth
 
