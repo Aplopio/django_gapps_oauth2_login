@@ -22,7 +22,7 @@ Run testcases, python manage.py test django_gapps_oauth2_login
 """
 
 setup(name='django_gapps_oauth2_login',
-      version='0.9',
+      version='0.9.6',
       description='Django Google Apps Oauth2 Logi',
       long_description = long_description,
       author='Vivek Chand',
