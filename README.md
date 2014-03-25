@@ -11,7 +11,7 @@ Django Google Apps Oauth2 Login:
 
 2. Define two more settings variables `GAPPS_LOGIN_SUCCESS_HANDLER` & `GAPPS_USER_FUNCTION` referring to the function locations in your app.
 
-3. pip install https://github.com/Aplopio/django_gapps_oauth2_login/archive/v0.95.zip
+3. `pip install https://github.com/Aplopio/django_gapps_oauth2_login/archive/v0.95.zip`
 
 3. Add `django_gapps_oauth2_login` to INSTALLED_APPS in settings.py
  
