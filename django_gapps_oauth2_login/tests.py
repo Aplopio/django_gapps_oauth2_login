@@ -4,10 +4,9 @@ from django_gapps_oauth2_login.views import *
 from django.conf import settings
 from .exceptions import IdentityAlreadyClaimed
 from .utils import (associate_oauth2,
-                    get_organization_name,
                     _extract_user_details)
 from .service import \
-    get_or_create_user_from_oauth2
+    get_or_create_user_from_oauth2, get_organization_name
 from .service import redirect_to_authorize_url
 from django.http import HttpResponseRedirect
 from mock import patch

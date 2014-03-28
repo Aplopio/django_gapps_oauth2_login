@@ -9,10 +9,10 @@ from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
 from oauth2client.client import FlowExchangeError
 
-from django_gapps_oauth2_login.oauth2_utils import (
+from .service import (
     get_or_create_user_from_oauth2, redirect_to_authorize_url,
     function_importer)
-from django_gapps_oauth2_login.models import *
+from .models import *
 
 
 constructor_kwargs = {

@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from oauth2client import xsrfutil
 from oauth2client.client import AccessTokenCredentials
 from BeautifulSoup import BeautifulSoup
+from django.utils import importlib
 
 import utils
 
@@ -34,3 +35,14 @@ def get_organization_name(admin_user, domain):
     response = authorized_request(admin_user, url)
     organization_name = utils._get_organization_name(response)
     return organization_name
+
+
+def function_importer(func):
+    if callable(func):
+        return func
+    else:
+        module_bits = func.split('.')
+        module_path, func_name = '.'.join(module_bits[:-1]), module_bits[-1]
+        module = importlib.import_module(module_path)
+        func = getattr(module, func_name, None)
+        return func
