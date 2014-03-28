@@ -2,12 +2,13 @@ from django.utils import unittest
 from django.http import HttpRequest
 from django_gapps_oauth2_login.views import *
 from django.conf import settings
-
-from django_gapps_oauth2_login.oauth2_utils import (associate_oauth2,
-                                                    IdentityAlreadyClaimed)
-from django_gapps_oauth2_login.oauth2_utils import \
-    get_or_create_user_from_oauth2, _extract_user_details
-from django_gapps_oauth2_login.oauth2_utils import redirect_to_authorize_url
+from .exceptions import IdentityAlreadyClaimed
+from .utils import (associate_oauth2,
+                    get_organization_name,
+                    _extract_user_details)
+from .service import \
+    get_or_create_user_from_oauth2
+from .service import redirect_to_authorize_url
 from django.http import HttpResponseRedirect
 from mock import patch
 
@@ -17,7 +18,7 @@ import django_gapps_oauth2_login
 
 class TestGappsOauth2Login(unittest.TestCase):
 
-    @patch.object(django_gapps_oauth2_login.oauth2_utils,
+    @patch.object(django_gapps_oauth2_login.utils,
                   '_extract_user_details')
     @patch(settings.GAPPS_USER_FUNCTION)
     def test_gapps_user_settings(self, gapps_user_function,
@@ -55,7 +56,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertNotEqual(getattr(settings, "GAPPS_LOGIN_SUCCESS_HANDLER"),
                             None)
 
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(django_gapps_oauth2_login.utils, 'get_profile')
     def test_extract_user_details_case1(self, mock_requests_get):
         mock_requests_get.return_value = {'name': 'Vivek Chand',
                                           'email': 'vivek.chand@abcd.com',
@@ -73,7 +74,7 @@ class TestGappsOauth2Login(unittest.TestCase):
                             'email': 'vivek.chand@abcd.com'}
         self.assertEqual(details, expected_details)
 
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(django_gapps_oauth2_login.utils, 'get_profile')
     def test_extract_user_details_case2(self, mock_requests_get):
         mock_requests_get.return_value = {
             'name': 'Vivek Chand',
@@ -86,7 +87,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         self.assertEqual(details, None)
 
     # http://alexmarandon.com/articles/python_mock_gotchas/
-    @patch.object(django_gapps_oauth2_login.oauth2_utils,
+    @patch.object(django_gapps_oauth2_login.utils,
                   '_extract_user_details')
     @patch(settings.GAPPS_USER_FUNCTION)
     def test_create_user_from_oauth2_case1(self, gapps_user_function,
@@ -104,7 +105,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user = get_or_create_user_from_oauth2(oauth2_response)
         user.delete()
 
-    @patch.object(django_gapps_oauth2_login.oauth2_utils,
+    @patch.object(django_gapps_oauth2_login.utils,
                   '_extract_user_details')
     @patch(settings.GAPPS_USER_FUNCTION)
     def test_create_user_from_oauth2_case3(self, gapps_user_function,
@@ -121,54 +122,67 @@ class TestGappsOauth2Login(unittest.TestCase):
         user = get_or_create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
 
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.utils, '_extract_user_details')
     def test_create_user_from_oauth2_case4(self, mock_extract_user_details):
-        mock_extract_user_details.return_value = { 'first_name': 'vivek',
-                'last_name': 'chand', 'email': '' }
-        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+        mock_extract_user_details.return_value = {'first_name': 'vivek',
+                                                  'last_name': 'chand', 'email': ''}
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
         user = get_or_create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
 
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, '_extract_user_details')
+    @patch.object(django_gapps_oauth2_login.utils, '_extract_user_details')
     def test_create_user_from_oauth2_case5(self, mock_extract_user_details):
         mock_extract_user_details.return_value = None
-        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
         user = get_or_create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
 
     def test_associate_oauth2_case1(self):
-        user = User.objects.create(first_name='ram', last_name='lal', username='ram.lal@abcd.com')
-        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+        user = User.objects.create(
+            first_name='ram', last_name='lal', username='ram.lal@abcd.com')
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
         associate_oauth2(user, oauth2_response)
-        user_oauth2 = UserOauth2.objects.get(google_id__exact=oauth2_response.get('id_token').get('id'))
+        user_oauth2 = UserOauth2.objects.get(
+            google_id__exact=oauth2_response.get('id_token').get('id'))
         self.assertEqual(user, user_oauth2.user)
         user_oauth2.user.delete()
 
     def test_associate_oauth2_case2(self):
-        user1 = User.objects.create(first_name='ram', last_name='lal', username='ram.lal@abcd.com')
-        user2 = User.objects.create(first_name='vivek', last_name='chand', username='vivek.chand@abcd.com')
+        user1 = User.objects.create(
+            first_name='ram', last_name='lal', username='ram.lal@abcd.com')
+        user2 = User.objects.create(
+            first_name='vivek', last_name='chand', username='vivek.chand@abcd.com')
 
-        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
-        user_oauth2 = UserOauth2.objects.create( user=user1, google_id=oauth2_response.get('id_token').get('id') )
+        user_oauth2 = UserOauth2.objects.create(
+            user=user1, google_id=oauth2_response.get('id_token').get('id'))
 
         try:
             associate_oauth2(user2, oauth2_response)
         except IdentityAlreadyClaimed, e:
-            self.assertEqual(e.message, 'The identity 42342423432423 has already been claimed')
+            self.assertEqual(
+                e.message, 'The identity 42342423432423 has already been claimed')
             user1.delete()
             user2.delete()
 
     def test_associate_oauth2_case3(self):
-        user1 = User.objects.create(first_name='ram', last_name='lal', username='ram.lal@abcd.com')
-        user2 = User.objects.create(first_name='vivek', last_name='chand', username='vivek.chand@abcd.com')
+        user1 = User.objects.create(
+            first_name='ram', last_name='lal', username='ram.lal@abcd.com')
+        user2 = User.objects.create(
+            first_name='vivek', last_name='chand', username='vivek.chand@abcd.com')
 
-        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
         associate_oauth2(user1, oauth2_response)
@@ -176,13 +190,16 @@ class TestGappsOauth2Login(unittest.TestCase):
         try:
             associate_oauth2(user2, oauth2_response)
         except IdentityAlreadyClaimed, e:
-            self.assertEqual(e.message, 'The identity 42342423432423 has already been claimed')
+            self.assertEqual(
+                e.message, 'The identity 42342423432423 has already been claimed')
             user1.delete()
             user2.delete()
 
     def test_update_user_details_case1(self):
-        user = User.objects.create(first_name='ram', last_name='lal', username='ram.lal@abcd.com')
-        details = {'first_name': 'vivek', 'last_name': 'chand', 'email':'vivek.chand@abcd.com'}
+        user = User.objects.create(
+            first_name='ram', last_name='lal', username='ram.lal@abcd.com')
+        details = {'first_name': 'vivek', 'last_name':
+                   'chand', 'email': 'vivek.chand@abcd.com'}
         update_user_details(user, details)
         self.assertEqual(user.first_name, 'vivek')
         self.assertEqual(user.last_name, 'chand')
@@ -272,9 +289,9 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         user.delete()
 
-
     def test_auth_required_error(self):
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user = User(first_name='vivek', last_name='chand',
+                    username='vivek@rajnikanth.com')
         user.save()
 
         request = HttpRequest()
@@ -287,18 +304,20 @@ class TestGappsOauth2Login(unittest.TestCase):
             'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
         }
         request.GET = {
-            'error':'access_denied',
+            'error': 'access_denied',
         }
         request.user = user
         response = auth_required(request)
 
-        self.assertEqual(response.content, 'Access Denied:No code was supplied in the query parameters.')
+        self.assertEqual(
+            response.content, 'Access Denied:No code was supplied in the query parameters.')
         self.assertEqual(response.status_code, 400)
 
         user.delete()
 
     def test_auth_required_invalid_state(self):
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user = User(first_name='vivek', last_name='chand',
+                    username='vivek@rajnikanth.com')
         user.save()
 
         request = HttpRequest()
@@ -320,15 +339,19 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.delete()
 
     @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step2_exchange')
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(django_gapps_oauth2_login.utils, 'get_profile')
     def test_auth_required_get_or_create_throws_None(self, mock_requests_get, mock_step2_exchange):
-        mock_requests_get.return_value = {'name':'Vivek Chand', 'email': 'vivek.chand@abcd.com'}
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        mock_requests_get.return_value = {
+            'name': 'Vivek Chand', 'email': 'vivek.chand@abcd.com'}
+        user = User(first_name='vivek', last_name='chand',
+                    username='vivek@rajnikanth.com')
         user.save()
 
-        oauth2_response = {'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
-        user_oauth2 = UserOauth2.objects.create( user=user, google_id=oauth2_response.get('id_token').get('id') )
+        user_oauth2 = UserOauth2.objects.create(
+            user=user, google_id=oauth2_response.get('id_token').get('id'))
 
         class credential:
             token_response = oauth2_response
@@ -349,14 +372,15 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         response = auth_required(request)
 
-        self.assertEqual(response.content, 'Access Denied! You are not authenticated as a Google Apps user.')
+        self.assertEqual(
+            response.content, 'Access Denied! You are not authenticated as a Google Apps user.')
         self.assertEqual(response.status_code, 400)
 
         user_oauth2.delete()
         user.delete()
 
     @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step2_exchange')
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(django_gapps_oauth2_login.utils, 'get_profile')
     @patch.object(oauth2client.django_orm.Storage, 'put')
     @patch(settings.GAPPS_USER_FUNCTION)
     @patch(settings.GAPPS_LOGIN_SUCCESS_HANDLER)
@@ -404,7 +428,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.delete()
 
     @patch.object(oauth2client.client.OAuth2WebServerFlow, 'step2_exchange')
-    @patch.object(django_gapps_oauth2_login.oauth2_utils, 'get_profile')
+    @patch.object(django_gapps_oauth2_login.utils, 'get_profile')
     @patch.object(oauth2client.django_orm.Storage, 'put')
     @patch(settings.GAPPS_USER_FUNCTION)
     @patch(settings.GAPPS_LOGIN_SUCCESS_HANDLER)
@@ -465,15 +489,16 @@ class TestGappsOauth2Login(unittest.TestCase):
             'state': settings.SECRET_KEY
         }
 
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user = User(first_name='vivek', last_name='chand',
+                    username='vivek@rajnikanth.com')
         user.save()
         request.user = user
 
         bad_resp = login_begin(request)
-        self.assertEqual(bad_resp.content, 'OAuth2 Login Error: Google Apps Domain Not Sepcified')
+        self.assertEqual(bad_resp.content,
+                         'OAuth2 Login Error: Google Apps Domain Not Sepcified')
         self.assertEqual(bad_resp.status_code, 400)
         user.delete()
-
 
     def test_make_a_bad_request(self):
         request = HttpRequest()
@@ -486,12 +511,14 @@ class TestGappsOauth2Login(unittest.TestCase):
             'state': settings.SECRET_KEY
         }
 
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user = User(first_name='vivek', last_name='chand',
+                    username='vivek@rajnikanth.com')
         user.save()
         request.user = user
 
         bad_response = login_begin(request)
-        self.assertEqual(bad_response.content, 'OAuth2 Login Error: Google Apps Domain Not Sepcified')
+        self.assertEqual(bad_response.content,
+                         'OAuth2 Login Error: Google Apps Domain Not Sepcified')
         self.assertEqual(bad_response.status_code, 400)
         bad_response = auth_required(request)
 
@@ -513,13 +540,15 @@ class TestGappsOauth2Login(unittest.TestCase):
             'state': settings.SECRET_KEY
         }
 
-        user = User(first_name='vivek', last_name='chand', username='vivek@rajnikanth.com')
+        user = User(first_name='vivek', last_name='chand',
+                    username='vivek@rajnikanth.com')
         user.save()
         request.user = user
 
         domain = 'rajnikanth.com'
         redirect_resp = redirect_to_authorize_url(request, FLOW, domain)
-        self.assertEqual(redirect_resp.get('Location'), 'http://www.go_to_google.com/and/authenticate/and/come/back')
+        self.assertEqual(redirect_resp.get('Location'),
+                         'http://www.go_to_google.com/and/authenticate/and/come/back')
         self.assertEqual(redirect_resp.status_code, 302)
         user.delete()
 
