@@ -95,6 +95,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         mock_extract_user_details.return_value = {
             'first_name': 'vivek',
             'last_name': 'chand',
+            'username': 'vivekchand',
             'email': 'vivek.chand@abcd.com'}
         oauth2_response = {
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
@@ -195,39 +196,6 @@ class TestGappsOauth2Login(unittest.TestCase):
             user1.delete()
             user2.delete()
 
-    def test_update_user_details_case1(self):
-        user = User.objects.create(
-            first_name='ram', last_name='lal', username='ram.lal@abcd.com')
-        details = {'first_name': 'vivek', 'last_name':
-                   'chand', 'email': 'vivek.chand@abcd.com'}
-        update_user_details(user, details)
-        self.assertEqual(user.first_name, 'vivek')
-        self.assertEqual(user.last_name, 'chand')
-        self.assertEqual(user.username, 'vivek.chand@abcd.com')
-        user.delete()
-
-    def test_update_user_details_case2(self):
-        user = User.objects.create(first_name='ram',
-                                   last_name='lal',
-                                   username='ram.lal@abcd.com')
-        details = {'first_name': 'vivek', 'last_name': 'chand'}
-        update_user_details(user, details)
-        self.assertEqual(user.first_name, 'vivek')
-        self.assertEqual(user.last_name, 'chand')
-        self.assertEqual(user.username, 'ram.lal@abcd.com')
-        user.delete()
-
-    def test_update_user_details_case3(self):
-        user = User.objects.create(first_name='ram',
-                                   last_name='lal',
-                                   username='ram.lal@abcd.com')
-        details = {}
-        update_user_details(user, details)
-        self.assertEqual(user.first_name, 'ram')
-        self.assertEqual(user.last_name, 'lal')
-        self.assertEqual(user.username, 'ram.lal@abcd.com')
-        user.delete()
-
     def test_login_begin_redirect(self):
         request = HttpRequest()
         request.META = {
@@ -239,7 +207,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'domain': 'vivekchand.info'
         }
         user = User(first_name='vivek',
-                    last_name='chand', username='vivek@rajnikanth.com')
+                    last_name='chand', username='vivek@rajnikanth.com', email='vivek@rajnikanth.com')
         user.save()
         request.user = user
         auth_redirect_response = login_begin(request)
