@@ -2,6 +2,19 @@ import json
 import requests
 from .models import CredentialsModel, UserOauth2
 from .exceptions import IdentityAlreadyClaimed
+from django.utils import importlib
+
+
+def function_importer(func):
+    if callable(func):
+        return func
+    else:
+        module_bits = func.split('.')
+        module_path, func_name = '.'.join(module_bits[:-1]), module_bits[-1]
+        module = importlib.import_module(module_path)
+        func = getattr(module, func_name, None)
+        return func
+
 
 def get_profile(url):
     return json.loads(requests.get(url).content)
@@ -61,6 +74,7 @@ def authorized_request(user):
     http = httplib2.Http()
     http = credentials.authorize(http)
     return http
+
 
 def _get_organization_name(response):
     xml_string = user_resp[1]
