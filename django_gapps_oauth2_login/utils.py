@@ -66,11 +66,8 @@ def associate_oauth2(user, oauth2_response):
 def get_access_token(user):
     try:
         cred = CredentialsModel.objects.get(id=user)
-        google_id = UserOauth2.objects.get(user=user).google_id
         access_token = cred.credential.token_response.get('access_token')
     except CredentialsModel.DoesNotExist:
-        access_token = None
-    except UserOauth2.DoesNotExist:
         access_token = None
     return access_token
 
