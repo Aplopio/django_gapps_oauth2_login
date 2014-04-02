@@ -1,9 +1,11 @@
 import json
 import requests
+import httplib2
+from oauth2client.client import AccessTokenCredentials
 from .models import CredentialsModel, UserOauth2
 from .exceptions import IdentityAlreadyClaimed
 from django.utils import importlib
-
+from BeautifulSoup import BeautifulSoup
 
 def function_importer(func):
     if callable(func):
@@ -62,22 +64,27 @@ def associate_oauth2(user, oauth2_response):
 
 
 def get_access_token(user):
-    cred = CredentialsModel.objects.get(id=admin_user)
-    google_id = UserOauth2.objects.get(user=admin_user).google_id
+    cred = CredentialsModel.objects.get(id=user)
+    google_id = UserOauth2.objects.get(user=user).google_id
     access_token = cred.credential.token_response.get('access_token')
     return access_token
 
 
-def authorized_request(user):
+def do_request(authenticated_http, url):
+    return authenticated_http.request(url)
+
+
+def authorized_request(user, url):
     access_token = get_access_token(user)
     credentials = AccessTokenCredentials(access_token, 'my-user-agent/1.0')
     http = httplib2.Http()
     http = credentials.authorize(http)
-    return http
+    response = do_request(http, url)
+    return response
 
 
 def _get_organization_name(response):
-    xml_string = user_resp[1]
+    xml_string = response[1]
     soup = BeautifulSoup(xml_string)
     organization_name = soup.findChildren()[-1].get('value')
     return organization_name

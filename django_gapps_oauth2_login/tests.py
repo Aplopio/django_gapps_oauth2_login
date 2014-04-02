@@ -4,13 +4,15 @@ from django_gapps_oauth2_login.views import *
 from django.conf import settings
 from .exceptions import IdentityAlreadyClaimed
 from .utils import (associate_oauth2,
-                    _extract_user_details)
+                    _extract_user_details, get_access_token, authorized_request, _get_organization_name)
+
 from .service import \
     get_or_create_user_from_oauth2, get_organization_name
 from .service import redirect_to_authorize_url
 from django.http import HttpResponseRedirect
 from mock import patch
-
+from .models import CredentialsModel, UserOauth2
+import utils
 import oauth2client
 import django_gapps_oauth2_login
 
@@ -561,3 +563,85 @@ class TestGappsOauth2Login(unittest.TestCase):
                         redirect_response.get('Location'))
 
         user.delete()
+
+    @patch.object(CredentialsModel.objects, 'get')
+    def test_get_access_token(self, mock_cred_obj_get):
+        user = User(first_name='vivek', last_name='chand',
+                    email='vivek@rajnikanth.com')
+        user.save()
+
+        oauth2_response = {
+            'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
+            'id_token': {'id': '42342423432423', 'hd': 'rajnikanth.com'},
+            'and_some_more': 'blah_blah_blah'}
+
+        user_oauth2 = UserOauth2.objects.create(
+            user=user,
+            google_id=oauth2_response.get('id_token').get('id'))
+
+        class oauth2client_credential:
+            class credential:
+                token_response = oauth2_response
+                invalid = False
+
+        mock_cred_obj_get.return_value = oauth2client_credential()
+
+        access_token = get_access_token(user)
+        self.assertEqual(access_token, oauth2_response.get('access_token'))
+
+        user.delete()
+        user_oauth2.delete()
+
+    @patch.object(utils, 'get_access_token')
+    @patch.object(utils, 'do_request')
+    def test_authorized_request(self, mock_do_request, mock_get_access_token):
+        user = User(first_name='vivek', last_name='chand',
+                    email='vivek@rajnikanth.com')
+        user.save()
+        mock_do_request.return_value = 'god'
+        mock_get_access_token.return_value = '5435rwesdfsd!!qw4324321eqw23@!@###asdasd'
+        url = 'http://googleapis.com/search/?whoami'
+        response = authorized_request(user, url)
+        self.assertEqual(response, 'god')
+        user.delete()
+
+
+    def test_utils_get_organization_name(self):
+        response = ({'status': '200', 'gdata-version': '1.0',
+            'x-xss-protection': '1; mode=block',
+            'content-location': ('https://apps-apis.google.com/a/feeds/domain/2.0/aplopio.com'
+                                 '/general/organizationName?key=19785738660-v1tikhnpih8c6jb7f2'
+                                 'arp5lp03b0m756.apps.googleusercontent.com'),
+            'x-content-type-options': 'nosniff',
+            'alternate-protocol': '443:quic',
+            'transfer-encoding': 'chunked',
+            'expires': 'Wed, 02 Apr 2014 06:41:59 GMT',
+            'vary': 'Accept, X-GData-Authorization, GData-Version',
+            'server': 'GSE', 'last-modified': 'Wed, 02 Apr 2014 06:41:59 GMT',
+            'cache-control': 'private, max-age=0, must-revalidate, no-transform',
+            'date': 'Wed, 02 Apr 2014 06:41:59 GMT',
+            'x-frame-options': 'SAMEORIGIN',
+            'content-type': 'application/atom+xml; charset=UTF-8'},
+            ("<?xml version='1.0' encoding='UTF-8'?><entry xmlns='http://www.w3.org/2005/Atom'"
+             " xmlns:apps='http://schemas.google.com/apps/2006'><id>https://apps-apis.google.com"
+             "/a/feeds/domain/2.0/aplopio.com/general/organizationName</id><updated>2014-04-02T06"
+             ":41:59.611Z</updated><link rel='self' type='application/atom+xml' "
+             "href='https://apps-apis.google.com/a/feeds/domain/2.0/aplopio.com/general/organizationName"
+             "'/><link rel='edit' type='application/atom+xml' href='https://apps-apis.google.com/a/feeds/"
+             "domain/2.0/aplopio.com/general/organizationName'/><apps:property name='organizationName' "
+             "value='Aplopio Technology Private Limited'/></entry>"))
+
+        organization_name = _get_organization_name(response)
+        self.assertEqual(organization_name, 'Aplopio Technology Private Limited')
+
+    @patch.object(utils, 'authorized_request')
+    @patch.object(utils, '_get_organization_name')
+    def test_get_organization_name(self, mock_utils_get_organization_name,
+        mock_authorized_request):
+        admin_user = User(first_name='vivek', last_name='chand',
+                email='vivek@rajnikanth.com')
+        admin_user.save()
+        mock_utils_get_organization_name.return_value = 'Aplopio Technology Private Limited'
+        organization_name = get_organization_name(admin_user, 'aplopio.com')
+        admin_user.delete()
+
