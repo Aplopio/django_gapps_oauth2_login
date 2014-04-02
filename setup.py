@@ -22,8 +22,8 @@ Run testcases, python manage.py test django_gapps_oauth2_login
 """
 
 setup(name='django_gapps_oauth2_login',
-      version='0.9.6',
-      description='Django Google Apps Oauth2 Logi',
+      version='0.9.7',
+      description='Django Google Apps Oauth2 Login',
       long_description = long_description,
       author='Vivek Chand',
       author_email='vivek@aplopio.com',
@@ -40,5 +40,5 @@ setup(name='django_gapps_oauth2_login',
       ],
       keywords = ["django ", "oauth2", "login"],
       packages = ['django_gapps_oauth2_login'],
-      install_requires = ['google-api-python-client==1.2', 'mock==1.0.1'],
+      install_requires = ['google-api-python-client==1.2', 'mock==1.0.1', 'BeautifulSoup==3.2.1'],
       )
