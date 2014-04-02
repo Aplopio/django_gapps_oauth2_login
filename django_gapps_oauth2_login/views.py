@@ -1,18 +1,18 @@
 import json
 import os
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-
+from django.http import (
+    HttpResponse, HttpResponseRedirect, HttpResponseBadRequest)
 
 from oauth2client import xsrfutil
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
 from oauth2client.client import FlowExchangeError
 
-from django_gapps_oauth2_login.oauth2_utils import (
-    get_or_create_user_from_oauth2, redirect_to_authorize_url,
-    function_importer)
-from django_gapps_oauth2_login.models import *
+from .service import (
+    get_or_create_user_from_oauth2, redirect_to_authorize_url)
+from .utils import function_importer
+from .models import *
 
 
 constructor_kwargs = {

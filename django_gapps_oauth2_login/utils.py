@@ -1,11 +1,11 @@
 import json
 import requests
-from django.conf import settings
-from django_gapps_oauth2_login.models import *
-from django.http import HttpResponseRedirect
-from oauth2client import xsrfutil
+import httplib2
+from oauth2client.client import AccessTokenCredentials
+from .models import CredentialsModel, UserOauth2
+from .exceptions import IdentityAlreadyClaimed
 from django.utils import importlib
-
+from BeautifulSoup import BeautifulSoup
 
 def function_importer(func):
     if callable(func):
@@ -16,10 +16,6 @@ def function_importer(func):
         module = importlib.import_module(module_path)
         func = getattr(module, func_name, None)
         return func
-
-
-class IdentityAlreadyClaimed(Exception):
-    pass
 
 
 def get_profile(url):
@@ -67,20 +63,28 @@ def associate_oauth2(user, oauth2_response):
     return user_oauth2
 
 
-def get_or_create_user_from_oauth2(oauth2_response):
-    details = _extract_user_details(oauth2_response)
-    if not details:
-        return None
-
-    user = function_importer(settings.GAPPS_USER_FUNCTION)(**details)
-    if user:
-        associate_oauth2(user, oauth2_response)
-    return user
+def get_access_token(user):
+    cred = CredentialsModel.objects.get(id=user)
+    google_id = UserOauth2.objects.get(user=user).google_id
+    access_token = cred.credential.token_response.get('access_token')
+    return access_token
 
 
-def redirect_to_authorize_url(request, FLOW, domain):
-    FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
-                                                   request.user)
-    FLOW.params['hd'] = domain
-    authorize_url = FLOW.step1_get_authorize_url()
-    return HttpResponseRedirect(authorize_url)
+def do_request(authenticated_http, url):
+    return authenticated_http.request(url)
+
+
+def authorized_request(user, url):
+    access_token = get_access_token(user)
+    credentials = AccessTokenCredentials(access_token, 'my-user-agent/1.0')
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+    response = do_request(http, url)
+    return response
+
+
+def _get_organization_name(response):
+    xml_string = response[1]
+    soup = BeautifulSoup(xml_string)
+    organization_name = soup.findChildren()[-1].get('value')
+    return organization_name

@@ -1,0 +1,3 @@
+class IdentityAlreadyClaimed(Exception):
+    pass
+
