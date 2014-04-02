@@ -64,9 +64,14 @@ def associate_oauth2(user, oauth2_response):
 
 
 def get_access_token(user):
-    cred = CredentialsModel.objects.get(id=user)
-    google_id = UserOauth2.objects.get(user=user).google_id
-    access_token = cred.credential.token_response.get('access_token')
+    try:
+        cred = CredentialsModel.objects.get(id=user)
+        google_id = UserOauth2.objects.get(user=user).google_id
+        access_token = cred.credential.token_response.get('access_token')
+    except CredentialsModel.DoesNotExist:
+        access_token = None
+    except UserOauth2.DoesNotExist:
+        access_token = None
     return access_token
 
 
@@ -76,11 +81,12 @@ def do_request(authenticated_http, url):
 
 def authorized_request(user, url):
     access_token = get_access_token(user)
-    credentials = AccessTokenCredentials(access_token, 'my-user-agent/1.0')
-    http = httplib2.Http()
-    http = credentials.authorize(http)
-    response = do_request(http, url)
-    return response
+    if access_token:
+        credentials = AccessTokenCredentials(access_token, 'my-user-agent/1.0')
+        http = httplib2.Http()
+        http = credentials.authorize(http)
+        response = do_request(http, url)
+        return response
 
 
 def _get_organization_name(response):

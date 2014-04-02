@@ -641,6 +641,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         admin_user = User(first_name='vivek', last_name='chand',
                 email='vivek@rajnikanth.com')
         admin_user.save()
+        mock_authorized_request = {'organization_name': 'Aplopio Technology Private Limited'}
         mock_utils_get_organization_name.return_value = 'Aplopio Technology Private Limited'
         organization_name = get_organization_name(admin_user, 'aplopio.com')
         admin_user.delete()

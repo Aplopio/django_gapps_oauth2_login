@@ -30,5 +30,6 @@ def get_organization_name(admin_user, domain):
     url = 'https://apps-apis.google.com/a/feeds/domain/2.0/%s/general/organizationName?key=%s' % (
         domain, settings.GAPPS_CLIENT_ID)
     response = utils.authorized_request(admin_user, url)
-    organization_name = utils._get_organization_name(response)
-    return organization_name
+    if response:
+        organization_name = utils._get_organization_name(response)
+        return organization_name
