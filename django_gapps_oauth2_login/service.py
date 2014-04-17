@@ -13,8 +13,6 @@ def get_or_create_user_from_oauth2(oauth2_response):
         return None
 
     user = utils.function_importer(settings.GAPPS_USER_FUNCTION)(**details)
-    if user:
-        utils.associate_oauth2(user, oauth2_response)
     return user
 
 
