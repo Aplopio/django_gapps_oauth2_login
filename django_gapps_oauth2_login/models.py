@@ -8,6 +8,3 @@ class CredentialsModel(models.Model):
   id = models.ForeignKey(User, primary_key=True, related_name="user_credential")
   credential = CredentialsField()
 
-class UserOauth2(models.Model):
-    user = models.ForeignKey(User, related_name="oauth2_user")
-    google_id = models.CharField(max_length=50, db_index=True)

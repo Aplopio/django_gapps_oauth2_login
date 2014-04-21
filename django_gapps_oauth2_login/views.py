@@ -43,10 +43,9 @@ def login_begin(request):
         if oauth2_response.get('id_token').get('hd') != domain:
             return redirect_to_authorize_url(request, FLOW, domain)
 
-        user_oauth2 = UserOauth2.objects.get(
-            google_id__exact=oauth2_response.get('id_token').get('id'))
-
-        user = user_oauth2.user
+        email = oauth2_response.get('id_token').get('email')
+        details = dict(email=email, apps_domain=domain)
+        user = function_importer(settings.GAPPS_USER_FUNCTION)(**details)
         return function_importer(settings.GAPPS_LOGIN_SUCCESS_HANDLER)(user)
 
 

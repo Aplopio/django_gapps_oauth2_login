@@ -2,7 +2,7 @@ import json
 import requests
 import httplib2
 from oauth2client.client import AccessTokenCredentials
-from .models import CredentialsModel, UserOauth2
+from .models import CredentialsModel
 from .exceptions import IdentityAlreadyClaimed
 from django.utils import importlib
 from BeautifulSoup import BeautifulSoup
@@ -44,23 +44,6 @@ def _extract_user_details(oauth2_response):
     return dict(email=email, first_name=first_name,
                 last_name=last_name, fullname=fullname,
                 apps_domain=apps_domain)
-
-
-def associate_oauth2(user, oauth2_response):
-    try:
-        user_oauth2 = UserOauth2.objects.get(
-            google_id__exact=oauth2_response.get('id_token').get('id'))
-    except UserOauth2.DoesNotExist:
-        user_oauth2 = UserOauth2.objects.create(user=user,
-                                                google_id=oauth2_response.
-                                                get('id_token').get('id'))
-    else:
-        if user != user_oauth2.user:
-            raise IdentityAlreadyClaimed(
-                "The identity %s has already been claimed"
-                % oauth2_response.get('id_token').get('id'))
-
-    return user_oauth2
 
 
 def get_access_token(user):
