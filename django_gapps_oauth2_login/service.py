@@ -30,4 +30,4 @@ def get_organization_name(admin_user, domain):
     response = utils.authorized_request(admin_user, url)
     if response:
         organization_name = utils._get_organization_name(response)
-        return organization_name.strip()
+        return organization_name.strip() if organization_name else None
