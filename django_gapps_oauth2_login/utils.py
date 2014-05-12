@@ -1,11 +1,13 @@
 import json
+
 import requests
 import httplib2
 from oauth2client.client import AccessTokenCredentials
-from .models import CredentialsModel
-from .exceptions import IdentityAlreadyClaimed
 from django.utils import importlib
 from BeautifulSoup import BeautifulSoup
+
+from .models import CredentialsModel
+
 
 def function_importer(func):
     if callable(func):

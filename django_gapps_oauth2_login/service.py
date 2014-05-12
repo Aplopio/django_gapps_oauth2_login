@@ -1,8 +1,6 @@
 from django.conf import settings
-from django_gapps_oauth2_login.models import *
 from django.http import HttpResponseRedirect
 from oauth2client import xsrfutil
-
 
 import utils
 

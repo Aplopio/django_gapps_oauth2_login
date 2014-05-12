@@ -1,9 +1,8 @@
 import json
-import os
+
 from django.conf import settings
 from django.http import (
-    HttpResponse, HttpResponseRedirect, HttpResponseBadRequest)
-
+    HttpResponseBadRequest)
 from oauth2client import xsrfutil
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
@@ -64,7 +63,7 @@ def auth_required(request):
     user = get_or_create_user_from_oauth2(oauth2_response)
 
     if isinstance(user, dict) and user.get('error'):
-	return HttpResponseBadRequest(json.dumps(user), content_type="application/json")
+        return HttpResponseBadRequest(json.dumps(user), content_type="application/json")
 
     if not user:
         return HttpResponseBadRequest('Access Denied!'

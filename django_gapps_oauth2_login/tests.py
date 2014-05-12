@@ -1,30 +1,27 @@
 from django.utils import unittest
 from django.http import HttpRequest
-from django_gapps_oauth2_login.views import *
 from django.conf import settings
-from .exceptions import IdentityAlreadyClaimed
-from .utils import (_extract_user_details,
-            get_access_token, authorized_request, _get_organization_name)
+from django.http import HttpResponseRedirect
+from mock import patch
+import oauth2client
 
+from django_gapps_oauth2_login.views import *
+from .utils import (_extract_user_details,
+                    get_access_token, authorized_request, _get_organization_name)
 from .service import \
     get_or_create_user_from_oauth2, get_organization_name
 from .service import redirect_to_authorize_url
-from django.http import HttpResponseRedirect
-from mock import patch
 from .models import CredentialsModel
 import utils
-import oauth2client
 import django_gapps_oauth2_login
 
 
 class TestGappsOauth2Login(unittest.TestCase):
-
     @patch.object(django_gapps_oauth2_login.utils,
                   '_extract_user_details')
     @patch(settings.GAPPS_USER_FUNCTION)
     def test_gapps_user_settings(self, gapps_user_function,
                                  mock_extract_user_details):
-
         dummy_user = User.objects.create(first_name='',
                                          last_name='',
                                          username='asdfasdf',
@@ -85,7 +82,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423'},
             'and_some_more': 'blah_blah_blah'}
         details = _extract_user_details(oauth2_response)
-	self.assertTrue(details.get('error'))
+        self.assertTrue(details.get('error'))
 
     # http://alexmarandon.com/articles/python_mock_gotchas/
     @patch.object(django_gapps_oauth2_login.utils,
@@ -102,7 +99,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '4232342423432423'},
             'and_some_more': 'blah_blah_blah'}
-        gapps_user_function.return_value = User.objects.\
+        gapps_user_function.return_value = User.objects. \
             create(**mock_extract_user_details.return_value)
         user = get_or_create_user_from_oauth2(oauth2_response)
         user.delete()
@@ -130,7 +127,7 @@ class TestGappsOauth2Login(unittest.TestCase):
                                                   'last_name': 'chand', 'email': ''}
         oauth2_response = {
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
-            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+            'id_token': {'id': '42342423432423'}, 'and_some_more': 'blah_blah_blah'}
 
         user = get_or_create_user_from_oauth2(oauth2_response)
         self.assertEqual(user, None)
@@ -140,10 +137,10 @@ class TestGappsOauth2Login(unittest.TestCase):
         mock_extract_user_details.return_value = {'error': 'bla bla'}
         oauth2_response = {
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
-            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+            'id_token': {'id': '42342423432423'}, 'and_some_more': 'blah_blah_blah'}
 
         user = get_or_create_user_from_oauth2(oauth2_response)
-	self.assertTrue(user.get('error'))
+        self.assertTrue(user.get('error'))
 
 
     def test_login_begin_redirect(self):
@@ -169,7 +166,6 @@ class TestGappsOauth2Login(unittest.TestCase):
     @patch.object(oauth2client.django_orm.Storage, 'get')
     @patch(settings.GAPPS_LOGIN_SUCCESS_HANDLER)
     def test_login_begin_has_credential(self, login_success_handler, mock_get):
-
         login_success_handler.return_value = HttpResponseRedirect('/somewhere')
 
         user = User(first_name='vivek',
@@ -264,7 +260,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         oauth2_response = {
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
-            'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
+            'id_token': {'id': '42342423432423'}, 'and_some_more': 'blah_blah_blah'}
 
         class credential:
             token_response = oauth2_response
@@ -298,7 +294,6 @@ class TestGappsOauth2Login(unittest.TestCase):
                                                     mock_storage_put,
                                                     mock_requests_get,
                                                     mock_step2_exchange):
-
         gapps_login_handler.return_value = HttpResponseRedirect('/somewhere')
 
         user = User.objects.create(first_name='vivek', last_name='chand',
@@ -345,7 +340,6 @@ class TestGappsOauth2Login(unittest.TestCase):
                                        login_success_handler,
                                        mock_storage_put, mock_requests_get,
                                        mock_step2_exchange):
-
         user = User(first_name='vivek',
                     last_name='chand', username='vivek@rajnikanth.com')
         user.save()
@@ -378,6 +372,7 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         def side_effect(arg):
             raise FlowExchangeError('invalid_token')
+
         mock_step2_exchange.side_effect = side_effect
 
         response = auth_required(request)
@@ -540,28 +535,28 @@ class TestGappsOauth2Login(unittest.TestCase):
 
     def test_utils_get_organization_name(self):
         response = ({'status': '200', 'gdata-version': '1.0',
-            'x-xss-protection': '1; mode=block',
-            'content-location': ('https://apps-apis.google.com/a/feeds/domain/2.0/aplopio.com'
-                                 '/general/organizationName?key=19785738660-v1tikhnpih8c6jb7f2'
-                                 'arp5lp03b0m756.apps.googleusercontent.com'),
-            'x-content-type-options': 'nosniff',
-            'alternate-protocol': '443:quic',
-            'transfer-encoding': 'chunked',
-            'expires': 'Wed, 02 Apr 2014 06:41:59 GMT',
-            'vary': 'Accept, X-GData-Authorization, GData-Version',
-            'server': 'GSE', 'last-modified': 'Wed, 02 Apr 2014 06:41:59 GMT',
-            'cache-control': 'private, max-age=0, must-revalidate, no-transform',
-            'date': 'Wed, 02 Apr 2014 06:41:59 GMT',
-            'x-frame-options': 'SAMEORIGIN',
-            'content-type': 'application/atom+xml; charset=UTF-8'},
-            ("<?xml version='1.0' encoding='UTF-8'?><entry xmlns='http://www.w3.org/2005/Atom'"
-             " xmlns:apps='http://schemas.google.com/apps/2006'><id>https://apps-apis.google.com"
-             "/a/feeds/domain/2.0/aplopio.com/general/organizationName</id><updated>2014-04-02T06"
-             ":41:59.611Z</updated><link rel='self' type='application/atom+xml' "
-             "href='https://apps-apis.google.com/a/feeds/domain/2.0/aplopio.com/general/organizationName"
-             "'/><link rel='edit' type='application/atom+xml' href='https://apps-apis.google.com/a/feeds/"
-             "domain/2.0/aplopio.com/general/organizationName'/><apps:property name='organizationName' "
-             "value='Aplopio Technology Private Limited'/></entry>"))
+                     'x-xss-protection': '1; mode=block',
+                     'content-location': ('https://apps-apis.google.com/a/feeds/domain/2.0/aplopio.com'
+                                          '/general/organizationName?key=19785738660-v1tikhnpih8c6jb7f2'
+                                          'arp5lp03b0m756.apps.googleusercontent.com'),
+                     'x-content-type-options': 'nosniff',
+                     'alternate-protocol': '443:quic',
+                     'transfer-encoding': 'chunked',
+                     'expires': 'Wed, 02 Apr 2014 06:41:59 GMT',
+                     'vary': 'Accept, X-GData-Authorization, GData-Version',
+                     'server': 'GSE', 'last-modified': 'Wed, 02 Apr 2014 06:41:59 GMT',
+                     'cache-control': 'private, max-age=0, must-revalidate, no-transform',
+                     'date': 'Wed, 02 Apr 2014 06:41:59 GMT',
+                     'x-frame-options': 'SAMEORIGIN',
+                     'content-type': 'application/atom+xml; charset=UTF-8'},
+                    ("<?xml version='1.0' encoding='UTF-8'?><entry xmlns='http://www.w3.org/2005/Atom'"
+                     " xmlns:apps='http://schemas.google.com/apps/2006'><id>https://apps-apis.google.com"
+                     "/a/feeds/domain/2.0/aplopio.com/general/organizationName</id><updated>2014-04-02T06"
+                     ":41:59.611Z</updated><link rel='self' type='application/atom+xml' "
+                     "href='https://apps-apis.google.com/a/feeds/domain/2.0/aplopio.com/general/organizationName"
+                     "'/><link rel='edit' type='application/atom+xml' href='https://apps-apis.google.com/a/feeds/"
+                     "domain/2.0/aplopio.com/general/organizationName'/><apps:property name='organizationName' "
+                     "value='Aplopio Technology Private Limited'/></entry>"))
 
         organization_name = _get_organization_name(response)
         self.assertEqual(organization_name, 'Aplopio Technology Private Limited')
@@ -569,9 +564,9 @@ class TestGappsOauth2Login(unittest.TestCase):
     @patch.object(utils, 'authorized_request')
     @patch.object(utils, '_get_organization_name')
     def test_get_organization_name(self, mock_utils_get_organization_name,
-        mock_authorized_request):
+                                   mock_authorized_request):
         admin_user = User(first_name='vivek', last_name='chand',
-                email='vivek@rajnikanth.com')
+                          email='vivek@rajnikanth.com')
         admin_user.save()
         mock_authorized_request = {'organization_name': 'Aplopio Technology Private Limited'}
         mock_utils_get_organization_name.return_value = 'Aplopio Technology Private Limited'
