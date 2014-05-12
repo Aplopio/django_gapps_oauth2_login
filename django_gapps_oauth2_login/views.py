@@ -63,12 +63,15 @@ def auth_required(request):
     user = get_or_create_user_from_oauth2(oauth2_response)
 
     if isinstance(user, dict) and user.get('error'):
-        return HttpResponseBadRequest(json.dumps(user), content_type="application/json")
+        return HttpResponseBadRequest("Access Denied!"
+                                      " You are not authenticated as"
+                                      " a Google Apps user.")
 
     if not user:
-        return HttpResponseBadRequest('Access Denied!'
-                                      ' You are not authenticated as'
-                                      ' a Google Apps user.')
+        return HttpResponseBadRequest("Access Denied!"
+                                      " We couldn't find"
+                                      " an active user for this"
+                                      " account in the system")
 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     storage.put(credential)
