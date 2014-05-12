@@ -9,8 +9,8 @@ import utils
 
 def get_or_create_user_from_oauth2(oauth2_response):
     details = utils._extract_user_details(oauth2_response)
-    if not details:
-        return None
+    if details.get('error'):
+        return details
 
     user = utils.function_importer(settings.GAPPS_USER_FUNCTION)(**details)
     return user

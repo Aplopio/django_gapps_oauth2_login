@@ -39,7 +39,7 @@ def _extract_user_details(oauth2_response):
     apps_domain = profile.get('hd')
 
     if not apps_domain:
-        return None
+        return {'error': 'You are not authenticated as google apps user! profile response: {}'.format(profile)}
 
     return dict(email=email, first_name=first_name,
                 last_name=last_name, fullname=fullname,

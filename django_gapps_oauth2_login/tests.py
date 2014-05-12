@@ -85,7 +85,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423'},
             'and_some_more': 'blah_blah_blah'}
         details = _extract_user_details(oauth2_response)
-        self.assertEqual(details, None)
+	self.assertTrue(details.get('error'))
 
     # http://alexmarandon.com/articles/python_mock_gotchas/
     @patch.object(django_gapps_oauth2_login.utils,
@@ -137,13 +137,13 @@ class TestGappsOauth2Login(unittest.TestCase):
 
     @patch.object(django_gapps_oauth2_login.utils, '_extract_user_details')
     def test_create_user_from_oauth2_case5(self, mock_extract_user_details):
-        mock_extract_user_details.return_value = None
+        mock_extract_user_details.return_value = {'error': 'bla bla'}
         oauth2_response = {
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'},  'and_some_more': 'blah_blah_blah'}
 
         user = get_or_create_user_from_oauth2(oauth2_response)
-        self.assertEqual(user, None)
+	self.assertTrue(user.get('error'))
 
 
     def test_login_begin_redirect(self):
@@ -285,8 +285,6 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         response = auth_required(request)
 
-        self.assertEqual(
-            response.content, 'Access Denied! You are not authenticated as a Google Apps user.')
         self.assertEqual(response.status_code, 400)
         user.delete()
 

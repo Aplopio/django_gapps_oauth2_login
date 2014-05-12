@@ -62,6 +62,10 @@ def auth_required(request):
 
     oauth2_response = credential.token_response
     user = get_or_create_user_from_oauth2(oauth2_response)
+
+    if isinstance(user, dict) and user.get('error'):
+	return HttpResponseBadRequest(json.dumps(user), content_type="application/json")
+
     if not user:
         return HttpResponseBadRequest('Access Denied!'
                                       ' You are not authenticated as'
