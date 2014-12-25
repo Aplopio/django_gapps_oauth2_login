@@ -63,9 +63,7 @@ def auth_required(request):
     user = get_or_create_user_from_oauth2(oauth2_response)
 
     if isinstance(user, dict) and user.get('error'):
-        return HttpResponseBadRequest("Access Denied!"
-                                      " You are not authenticated as"
-                                      " a Google Apps user.")
+        return HttpResponseBadRequest(user.get('error'))
 
     if not user:
         return HttpResponseBadRequest("Access Denied!"
