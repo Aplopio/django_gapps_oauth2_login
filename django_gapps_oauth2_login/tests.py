@@ -233,9 +233,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
-            'state': 'abcd',
-        }
+        request.REQUEST = {}
 
         response = auth_required(request)
 
