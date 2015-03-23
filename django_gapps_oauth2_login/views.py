@@ -49,6 +49,10 @@ def login_begin(request):
 
 
 def auth_required(request):
+    if not request.REQUEST.get('state'):
+        return HttpResponseBadRequest('state parameter is '
+                                      'required')
+
     if not xsrfutil.validate_token(settings.SECRET_KEY,
                                    request.REQUEST['state'],
                                    request.user):

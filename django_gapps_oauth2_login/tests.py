@@ -226,6 +226,22 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         user.delete()
 
+    def test_auth_required_missing_state(self):
+        request = HttpRequest()
+        request.META = {
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'REMOTE_ADDR': '6457.255.345.123',
+        }
+        request.REQUEST = {
+            'state': 'abcd',
+        }
+
+        response = auth_required(request)
+
+        self.assertEqual(response.content, 'state parameter is required')
+
+
     def test_auth_required_invalid_state(self):
         user = User(first_name='vivek', last_name='chand',
                     username='vivek@rajnikanth.com')
