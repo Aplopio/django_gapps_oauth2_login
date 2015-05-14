@@ -21,14 +21,56 @@ def function_importer(func):
 
 
 def get_profile(url):
-    return json.loads(requests.get(url).content)
+    try:
+        content = requests.get(url).content
+        return json.loads(content)
 
+    # except requests.ConnectionError:
+    #     return {
+    #         'error': ('Access Denied! '
+    #                   'There was a connection error when trying '
+    #                   'to access the GApps profile')
+    #     }
+    #
+    # except requests.HTTPError:
+    #     return {
+    #         'error': ('Access Denied!'
+    #                   'The request to Google API returned an '
+    #                   'invalid HTTP response')
+    #     }
+    #
+    # except requests.Timeout:
+    #     return {
+    #         'error': ('Access Denied!'
+    #                   'The connection timed out while trying '
+    #                   'to access the GApps profile')
+    #     }
+    #
+    # except requests.TooManyRedirects:
+    #     return {
+    #         'error': ('Access Denied!'
+    #                   'The requests to the GApps profile '
+    #                   'caused too many redirects')
+    #     }
+
+    except requests.RequestException:
+        return {'error': ('Access Denied!'
+                          'There was an unkown error when trying to '
+                          'access the GApps profile.')}
+
+    except ValueError:
+        return {'error': ('Access Denied!'
+                          'GApps returned an invalid response.')}
 
 def _extract_user_details(oauth2_response):
     email = fullname = first_name = last_name = None
     access_token = oauth2_response['access_token']
     profile = get_profile('https://www.googleapis.com/oauth2/v1/'
                           'userinfo?alt=json&access_token=%s' % access_token)
+
+    if profile.get('error'):
+        return profile
+
     fullname = profile.get('name')
     email = profile.get('email')
     if ' ' in fullname:

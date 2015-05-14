@@ -1,9 +1,12 @@
+import  requests
+import json
 from django.utils import unittest
 from django.http import HttpRequest
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from mock import patch
+from mock import patch, Mock, MagicMock
 import oauth2client
+
 
 from django_gapps_oauth2_login.views import *
 from .utils import (_extract_user_details,
@@ -586,4 +589,38 @@ class TestGappsOauth2Login(unittest.TestCase):
         mock_utils_get_organization_name.return_value = 'Aplopio Technology Private Limited'
         organization_name = get_organization_name(admin_user, 'aplopio.com')
         admin_user.delete()
+
+    @patch.object(json, 'loads')
+    @patch.object(requests, 'get')
+    def test_get_profile_valid(self, mock_request_get, json_loads):
+
+        get_return_value = MagicMock(content='{"valid_property_name": ' \
+                                        '"valid_property_value"}' )
+        mock_request_get.return_value = get_return_value
+
+        return_value = {
+            'valid_property_name': 'valid_property_value'
+        }
+
+        json_loads.return_value = return_value
+
+        details = utils.get_profile("some url")
+        assert details == return_value
+
+    @patch.object(json, 'loads')
+    @patch.object(requests, 'get')
+    def test_get_profile_invalid(self, mock_request_get, json_loads):
+        return_value = {
+            'valid_property_name': 'valid_property_value'
+        }
+
+        json_loads.return_value = return_value
+
+        mock_request_get.side_effect = requests.RequestException('foo')
+        value = utils.get_profile('some url')
+
+        assert value == {'error': 'Access Denied!There was an unkown error '
+                                  'when trying to access the GApps profile.'}
+
+
 
