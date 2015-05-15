@@ -35,10 +35,10 @@ def get_profile(url):
         return {'error': ('Access Denied!'
                           'There was an unknown error when trying to '
                           'access the GApps profile.')}
-
     except ValueError:
         return {'error': ('Access Denied!'
                           'GApps returned an invalid response.')}
+
 
 def _extract_user_details(oauth2_response):
     email = fullname = first_name = last_name = None
