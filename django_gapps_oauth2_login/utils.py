@@ -22,36 +22,14 @@ def function_importer(func):
 
 def get_profile(url):
     try:
-        content = requests.get(url).content
-        return json.loads(content)
+        response = requests.get(url)
 
-    # except requests.ConnectionError:
-    #     return {
-    #         'error': ('Access Denied! '
-    #                   'There was a connection error when trying '
-    #                   'to access the GApps profile')
-    #     }
-    #
-    # except requests.HTTPError:
-    #     return {
-    #         'error': ('Access Denied!'
-    #                   'The request to Google API returned an '
-    #                   'invalid HTTP response')
-    #     }
-    #
-    # except requests.Timeout:
-    #     return {
-    #         'error': ('Access Denied!'
-    #                   'The connection timed out while trying '
-    #                   'to access the GApps profile')
-    #     }
-    #
-    # except requests.TooManyRedirects:
-    #     return {
-    #         'error': ('Access Denied!'
-    #                   'The requests to the GApps profile '
-    #                   'caused too many redirects')
-    #     }
+        if response.status_code != 200:
+            return {'error': 'Access Denied! GApps returned a'
+                             ' status {0}'.format(response.status_code)}
+
+        content = response.content
+        return json.loads(content)
 
     except requests.RequestException:
         return {'error': ('Access Denied!'
