@@ -33,7 +33,7 @@ def get_profile(url):
 
     except requests.RequestException:
         return {'error': ('Access Denied!'
-                          'There was an unkown error when trying to '
+                          'There was an unknown error when trying to '
                           'access the GApps profile.')}
 
     except ValueError:

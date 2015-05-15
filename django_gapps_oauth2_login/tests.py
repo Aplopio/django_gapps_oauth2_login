@@ -621,7 +621,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         mock_request_get.side_effect = requests.RequestException('foo')
         value = utils.get_profile('some url')
 
-        assert value == {'error': 'Access Denied!There was an unkown error '
+        assert value == {'error': 'Access Denied!There was an unknown error '
                                   'when trying to access the GApps profile.'}
 
     @patch.object(json, 'loads')
