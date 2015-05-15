@@ -21,23 +21,14 @@ def function_importer(func):
 
 
 def get_profile(url):
-    try:
-        response = requests.get(url)
+    response = requests.get(url)
 
-        if response.status_code != 200:
-            return {'error': 'Access Denied! GApps returned a'
-                             ' status {0}'.format(response.status_code)}
+    if response.status_code != 200:
+        return {'error': 'Access Denied! GApps'
+                         ' returned a status {0}'.format(response.status_code)}
 
-        content = response.content
-        return json.loads(content)
-
-    except requests.RequestException:
-        return {'error': ('Access Denied!'
-                          'There was an unknown error when trying to '
-                          'access the GApps profile.')}
-    except ValueError:
-        return {'error': ('Access Denied!'
-                          'GApps returned an invalid response.')}
+    content = response.content
+    return json.loads(content)
 
 
 def _extract_user_details(oauth2_response):

@@ -608,35 +608,3 @@ class TestGappsOauth2Login(unittest.TestCase):
 
         details = utils.get_profile("some url")
         assert details == return_value
-
-    @patch.object(json, 'loads')
-    @patch.object(requests, 'get')
-    def test_get_profile_invalid(self, mock_request_get, json_loads):
-        return_value = {
-            'valid_property_name': 'valid_property_value'
-        }
-
-        json_loads.return_value = return_value
-
-        mock_request_get.side_effect = requests.RequestException('foo')
-        value = utils.get_profile('some url')
-
-        assert value == {'error': 'Access Denied!There was an unknown error '
-                                  'when trying to access the GApps profile.'}
-
-    @patch.object(json, 'loads')
-    @patch.object(requests, 'get')
-    def test_get_profile_invalid_status(self, mock_request_get, json_loads):
-        get_return_value = MagicMock(
-            content='{"valid_property_name": "valid_property_value"}',
-            status_code=400
-        )
-
-        mock_request_get.return_value = get_return_value
-
-        return_value = {'error': 'Access Denied! GApps returned a status 400'}
-
-        details = utils.get_profile("some url")
-        assert details == return_value
-
-
