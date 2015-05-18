@@ -21,7 +21,14 @@ def function_importer(func):
 
 
 def get_profile(url):
-    return json.loads(requests.get(url).content)
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return {'error': 'Access Denied! GApps'
+                         ' returned a status {0}'.format(response.status_code)}
+
+    content = response.content
+    return json.loads(content)
 
 
 def _extract_user_details(oauth2_response):
@@ -29,6 +36,10 @@ def _extract_user_details(oauth2_response):
     access_token = oauth2_response['access_token']
     profile = get_profile('https://www.googleapis.com/oauth2/v1/'
                           'userinfo?alt=json&access_token=%s' % access_token)
+
+    if profile.get('error'):
+        return profile
+
     fullname = profile.get('name')
     email = profile.get('email')
     if ' ' in fullname:
