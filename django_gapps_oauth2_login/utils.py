@@ -40,6 +40,10 @@ def _extract_user_details(oauth2_response):
     if profile.get('error'):
         return profile
 
+    required_keys = ['name', 'email', 'hd']
+    if not all(key in profile for key in required_keys):
+        return {'error': 'Access Denied! GApps did not return required keys'}
+
     fullname = profile.get('name')
     email = profile.get('email')
     if ' ' in fullname:
