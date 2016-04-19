@@ -31,7 +31,8 @@ Google Apps Oauth2 Flow:
 Oauth2 Login module has two views login_begin & auth_required.
 
 <b>login_begin</b> - this view is called by the google markeplace url ( `/oauth2/login/?domain=${DOMAIN_NAME}` )
-
+> `domain` is optional parameter if it is present it will be considered as *Hosted Domain* for **GApps**
+> `action` is optional paramater which is passed on to **GAPPS_USER_FUNCTION**
 <b>auth_required</b> - this view is called by google after proper authentication ( we give it as `redirect_uri` to google: `/oauth2/oauth2callback` )
 
 For the first time when a user installs your google app, it lands to `login_begin` & after taking appropriate authentication access, it get's redirected to `auth_required` view.
