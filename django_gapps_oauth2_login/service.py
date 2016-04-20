@@ -23,9 +23,9 @@ def redirect_to_authorize_url(request, FLOW, domain, action=None):
     if domain:
         FLOW.params['hd'] = domain
 
-    if action:
-        FLOW.redirect_uri = u'{}?action={}'.\
-            format(FLOW.redirect_uri, action)
+    FLOW.redirect_uri = u'{}?action={}'.\
+        format(settings.GAPPS_REDIRECT_URI, action) if action \
+        else settings.GAPPS_REDIRECT_URI
 
     authorize_url = FLOW.step1_get_authorize_url()
     return HttpResponseRedirect(authorize_url)
