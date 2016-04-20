@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from django.http import (
     HttpResponseBadRequest)
+from django.shortcuts import render_to_response
 from oauth2client import xsrfutil
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.django_orm import Storage
@@ -31,19 +32,17 @@ def login_begin(request):
     storage = Storage(CredentialsModel, 'id', request.user.id, 'credential')
     credential = storage.get()
     domain = request.REQUEST.get('domain')
-    if not domain:
-        return HttpResponseBadRequest('OAuth2 Login Error:'
-                                      ' Google Apps Domain Not Sepcified')
+    action = request.REQUEST.get('action')
 
     if credential is None or credential.invalid is True:
-        return redirect_to_authorize_url(request, FLOW, domain)
+        return redirect_to_authorize_url(request, FLOW, domain, action)
     else:
         oauth2_response = credential.token_response
         if oauth2_response.get('id_token').get('hd') != domain:
             return redirect_to_authorize_url(request, FLOW, domain)
 
         email = oauth2_response.get('id_token').get('email')
-        details = dict(email=email, apps_domain=domain)
+        details = dict(email=email, apps_domain=domain, action=action)
         user = function_importer(settings.GAPPS_USER_FUNCTION)(**details)
         return function_importer(settings.GAPPS_LOGIN_SUCCESS_HANDLER)(user)
 
@@ -64,10 +63,14 @@ def auth_required(request):
         return HttpResponseBadRequest('Access Denied:' + e.message)
 
     oauth2_response = credential.token_response
-    user = get_or_create_user_from_oauth2(oauth2_response)
+    user = get_or_create_user_from_oauth2(oauth2_response,
+                                          request.REQUEST.get('action'))
 
-    if isinstance(user, dict) and user.get('error'):
-        return HttpResponseBadRequest(user.get('error'))
+    if isinstance(user, dict):
+        if user.get('error'):
+            return HttpResponseBadRequest(user.get('error'))
+        elif user.get('errorpage'):
+            return render_to_response(user.get('errorpage'))
 
     if not user:
         return HttpResponseBadRequest("Access Denied!"

@@ -415,10 +415,10 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.save()
         request.user = user
 
-        bad_resp = login_begin(request)
-        self.assertEqual(bad_resp.content,
-                         'OAuth2 Login Error: Google Apps Domain Not Sepcified')
-        self.assertEqual(bad_resp.status_code, 400)
+        resp = login_begin(request)
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue('https://accounts.google.com/o/oauth2/auth?state=' in
+                        resp.get('Location'))
         user.delete()
 
     def test_make_a_bad_request(self):
@@ -437,10 +437,6 @@ class TestGappsOauth2Login(unittest.TestCase):
         user.save()
         request.user = user
 
-        bad_response = login_begin(request)
-        self.assertEqual(bad_response.content,
-                         'OAuth2 Login Error: Google Apps Domain Not Sepcified')
-        self.assertEqual(bad_response.status_code, 400)
         bad_response = auth_required(request)
 
         self.assertEqual(bad_response.content, 'Who are you? Access Denied!')
