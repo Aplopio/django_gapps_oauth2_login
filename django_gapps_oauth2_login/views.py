@@ -14,6 +14,10 @@ from .service import (
 from .utils import function_importer
 from .models import *
 
+import logging
+
+
+logger = logging(__name__)
 
 constructor_kwargs = {
     'redirect_uri': getattr(settings, "GAPPS_REDIRECT_URI", None),
@@ -58,6 +62,7 @@ def auth_required(request):
         return HttpResponseBadRequest('Who are you? Access Denied!')
 
     try:
+        logger.get_info("Request Oauth: %s" %request.REQUEST)
         credential = FLOW.step2_exchange(request.REQUEST)
     except FlowExchangeError, e:
         return HttpResponseBadRequest('Access Denied:' + e.message)
