@@ -17,7 +17,7 @@ from .models import *
 import logging
 
 
-logger = logging(__name__)
+logger = logging.getLogger(__name__)
 
 constructor_kwargs = {
     'redirect_uri': getattr(settings, "GAPPS_REDIRECT_URI", None),
