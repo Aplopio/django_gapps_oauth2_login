@@ -62,7 +62,7 @@ def auth_required(request):
         return HttpResponseBadRequest('Who are you? Access Denied!')
 
     try:
-        logger.get_info("Request Oauth: %s" %request.REQUEST)
+        logger.info("Request Oauth: %s" %request.REQUEST)
         credential = FLOW.step2_exchange(request.REQUEST)
     except FlowExchangeError, e:
         return HttpResponseBadRequest('Access Denied:' + e.message)
