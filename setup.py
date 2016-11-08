@@ -21,6 +21,20 @@ Write custom receivers for user_created_via_oauth2 & redirect_user_loggedin_via_
 Run testcases, python manage.py test django_gapps_oauth2_login
 """
 
+install_requires = ['httplib2>=0.8', 'mock==1.0.1', 'BeautifulSoup==3.2.1']
+
+needs_json = False
+try:
+  import json
+except ImportError:
+  try:
+    import simplejson
+  except ImportError:
+    needs_json = True
+
+if needs_json:
+  install_requires.append('simplejson')
+
 setup(name='django_gapps_oauth2_login',
       version='0.9.8.1',
       description='Django Google Apps Oauth2 Login',
@@ -28,7 +42,7 @@ setup(name='django_gapps_oauth2_login',
       author='Vivek Chand',
       author_email='vivek@aplopio.com',
       url='https://github.com/Aplopio/django_gapps_oauth2_login',
-      classifiers = [
+      classifiers=[
           "Programming Language :: Python",
           "Topic :: Software Development :: Libraries :: Python Modules",
           "License :: OSI Approved :: MIT License",
@@ -38,7 +52,7 @@ setup(name='django_gapps_oauth2_login',
           "Programming Language :: Python :: 2.6",
           "Programming Language :: Python :: 2.7",
       ],
-      keywords = ["django ", "oauth2", "login"],
-      packages = ['django_gapps_oauth2_login'],
-      install_requires = ['google-api-python-client==1.2', 'mock==1.0.1', 'BeautifulSoup==3.2.1'],
+      keywords=["django ", "oauth2", "login"],
+      packages=['django_gapps_oauth2_login', 'oauth2client'],
+      install_requires=install_requires,
       )
