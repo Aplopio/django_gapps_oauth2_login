@@ -3,7 +3,7 @@ import json
 import requests
 import httplib2
 from oauth2client.client import AccessTokenCredentials
-from django.utils import importlib
+import importlib
 from BeautifulSoup import BeautifulSoup
 
 from .models import CredentialsModel
