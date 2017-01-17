@@ -153,7 +153,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'domain': 'vivekchand.info'
         }
         user = User(first_name='vivek',
@@ -192,7 +192,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'domain': 'vivekchand.info'
         }
         request.user = user
@@ -214,7 +214,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
         }
         request.GET = {
@@ -236,7 +236,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {}
+        request.GET = {}
 
         response = auth_required(request)
 
@@ -254,7 +254,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': 'abcd',
         }
 
@@ -291,7 +291,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
         }
         request.user = user
@@ -332,7 +332,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
         }
         request.user = user
@@ -378,7 +378,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': xsrfutil.generate_token(settings.SECRET_KEY, user),
         }
         request.user = user
@@ -406,7 +406,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': settings.SECRET_KEY
         }
 
@@ -428,7 +428,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': settings.SECRET_KEY
         }
 
@@ -453,7 +453,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'state': settings.SECRET_KEY
         }
 
@@ -495,7 +495,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'SERVER_PORT': 80,
             'REMOTE_ADDR': '6457.255.345.123',
         }
-        request.REQUEST = {
+        request.GET = {
             'domain': 'vivekchand.info'
         }
         request.user = user

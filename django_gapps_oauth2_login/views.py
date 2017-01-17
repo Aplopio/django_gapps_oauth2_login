@@ -35,8 +35,8 @@ FLOW = OAuth2WebServerFlow(**constructor_kwargs)
 def login_begin(request):
     storage = Storage(CredentialsModel, 'id', request.user.id, 'credential')
     credential = storage.get()
-    domain = request.REQUEST.get('domain')
-    action = request.REQUEST.get('action')
+    domain = request.GET.get('domain')
+    action = request.GET.get('action')
 
     if credential is None or credential.invalid is True:
         return redirect_to_authorize_url(request, FLOW, domain, action)
@@ -52,24 +52,24 @@ def login_begin(request):
 
 
 def auth_required(request):
-    if not request.REQUEST.get('state'):
+    if not request.GET.get('state'):
         return HttpResponseBadRequest('state parameter is '
                                       'required')
 
     if not xsrfutil.validate_token(settings.SECRET_KEY,
-                                   request.REQUEST['state'],
+                                   request.GET.get('state'),
                                    request.user):
         return HttpResponseBadRequest('Who are you? Access Denied!')
 
     try:
-        logger.info("Request Oauth: %s" %request.REQUEST)
-        credential = FLOW.step2_exchange(request.REQUEST)
+        logger.info("Request Oauth: %s" %request.GET)
+        credential = FLOW.step2_exchange(request.GET)
     except FlowExchangeError, e:
         return HttpResponseBadRequest('Access Denied:' + e.message)
 
     oauth2_response = credential.token_response
     user = get_or_create_user_from_oauth2(oauth2_response,
-                                          request.REQUEST.get('action'))
+                                          request.GET.get('action'))
 
     if isinstance(user, dict):
         if user.get('error'):
