@@ -50,6 +50,13 @@ class CredentialsField(models.Field):
       return value
     return pickle.loads(base64.b64decode(value))
 
+  def from_db_value(self, value, *args, **kwargs):
+    if value is None:
+      return None
+    if isinstance(value, oauth2client.client.Credentials):
+      return value
+    return pickle.loads(base64.b64decode(value))
+
   def get_db_prep_value(self, value, connection, prepared=False):
     if value is None:
       return None
@@ -69,6 +76,13 @@ class FlowField(models.Field):
     return "TextField"
 
   def to_python(self, value):
+    if value is None:
+      return None
+    if isinstance(value, oauth2client.client.Flow):
+      return value
+    return pickle.loads(base64.b64decode(value))
+
+  def from_db_value(self, value, *args, **kwargs):
     if value is None:
       return None
     if isinstance(value, oauth2client.client.Flow):
