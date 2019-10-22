@@ -16,14 +16,15 @@
 
 A Storage for Credentials that uses the keyring module.
 """
+from __future__ import absolute_import
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import keyring
 import threading
 
-from client import Storage as BaseStorage
-from client import Credentials
+from .client import Storage as BaseStorage
+from .client import Credentials
 
 
 class Storage(BaseStorage):

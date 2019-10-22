@@ -40,6 +40,7 @@ The format of the stored data is like so:
   ]
 }
 """
+from __future__ import absolute_import
 
 __author__ = 'jbeda@google.com (Joe Beda)'
 
@@ -49,11 +50,11 @@ import logging
 import os
 import threading
 
-from anyjson import simplejson
+from .anyjson import simplejson
 from oauth2client.client import Storage as BaseStorage
 from oauth2client.client import Credentials
 from oauth2client import util
-from locked_file import LockedFile
+from .locked_file import LockedFile
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +272,7 @@ class _MultiStore(object):
     simple version of "touch" to ensure the file has been created.
     """
     if not os.path.exists(self._file.filename()):
-      old_umask = os.umask(0177)
+      old_umask = os.umask(0o177)
       try:
         open(self._file.filename(), 'a+b').close()
       finally:

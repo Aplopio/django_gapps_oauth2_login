@@ -15,12 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import absolute_import
 import base64
 import hashlib
 import logging
 import time
 
-from anyjson import simplejson
+from .anyjson import simplejson
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds

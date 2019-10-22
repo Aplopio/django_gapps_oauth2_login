@@ -17,11 +17,12 @@
 A client_secrets.json file contains all the information needed to interact with
 an OAuth 2.0 protected service.
 """
+from __future__ import absolute_import
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-from anyjson import simplejson
+from .anyjson import simplejson
 
 # Properties that make a client_secrets.json file valid.
 TYPE_WEB = 'web'
@@ -150,4 +151,4 @@ def loadfile(filename, cache=None):
     obj = {client_type: client_info}
     cache.set(filename, obj, namespace=_SECRET_NAMESPACE)
 
-  return obj.iteritems().next()
+  return next(obj.iteritems())

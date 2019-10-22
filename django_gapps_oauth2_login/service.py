@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from oauth2client import xsrfutil
 
-import utils
+from . import utils
 
 
 def get_or_create_user_from_oauth2(oauth2_response, action=None):

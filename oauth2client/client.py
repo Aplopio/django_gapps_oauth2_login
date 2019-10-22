@@ -16,11 +16,12 @@
 
 Tools for interacting with OAuth 2.0 protected resources.
 """
+from __future__ import absolute_import
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
-import clientsecrets
+from . import clientsecrets
 import copy
 import datetime
 import httplib2
@@ -705,7 +706,7 @@ class OAuth2Credentials(Credentials):
           self.invalid = True
           if self.store:
             self.store.locked_put(self)
-      except StandardError:
+      except Exception:
         pass
       raise AccessTokenRefreshError(error_msg)
 
@@ -742,7 +743,7 @@ class OAuth2Credentials(Credentials):
         d = simplejson.loads(content)
         if 'error' in d:
           error_msg = d['error']
-      except StandardError:
+      except Exception:
         pass
       raise TokenRevokeError(error_msg)
 
@@ -1057,7 +1058,7 @@ def _parse_exchange_token_response(content):
   resp = {}
   try:
     resp = simplejson.loads(content)
-  except StandardError:
+  except Exception:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
     resp = dict(parse_qsl(content))

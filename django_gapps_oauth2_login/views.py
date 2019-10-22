@@ -64,7 +64,7 @@ def auth_required(request):
     try:
         logger.info("Request Oauth: %s" %request.GET)
         credential = FLOW.step2_exchange(request.GET)
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
         return HttpResponseBadRequest('Access Denied:' + e.message)
 
     oauth2_response = credential.token_response

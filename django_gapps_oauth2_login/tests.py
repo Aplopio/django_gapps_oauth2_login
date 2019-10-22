@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import  requests
 import json
 from django.utils import unittest
@@ -15,7 +16,7 @@ from .service import \
     get_or_create_user_from_oauth2, get_organization_name
 from .service import redirect_to_authorize_url
 from .models import CredentialsModel
-import utils
+from . import utils
 import django_gapps_oauth2_login
 
 

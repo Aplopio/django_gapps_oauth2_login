@@ -18,6 +18,8 @@ Do the OAuth 2.0 Web Server dance for a command line application. Stores the
 generated credentials in a common file that is used by other example apps in
 the same directory.
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
@@ -163,20 +165,20 @@ def run_flow(flow, storage, flags, http=None):
       try:
         httpd = ClientRedirectServer((flags.auth_host_name, port),
                                      ClientRedirectHandler)
-      except socket.error, e:
+      except socket.error as e:
         pass
       else:
         success = True
         break
     flags.noauth_local_webserver = not success
     if not success:
-      print 'Failed to start a local webserver listening on either port 8080'
-      print 'or port 9090. Please check your firewall settings and locally'
-      print 'running programs that may be blocking or using those ports.'
-      print
-      print 'Falling back to --noauth_local_webserver and continuing with',
-      print 'authorization.'
-      print
+      print('Failed to start a local webserver listening on either port 8080')
+      print('or port 9090. Please check your firewall settings and locally')
+      print('running programs that may be blocking or using those ports.')
+      print()
+      print('Falling back to --noauth_local_webserver and continuing with', end=' ')
+      print('authorization.')
+      print()
 
   if not flags.noauth_local_webserver:
     oauth_callback = 'http://%s:%s/' % (flags.auth_host_name, port_number)
@@ -187,20 +189,20 @@ def run_flow(flow, storage, flags, http=None):
 
   if not flags.noauth_local_webserver:
     webbrowser.open(authorize_url, new=1, autoraise=True)
-    print 'Your browser has been opened to visit:'
-    print
-    print '    ' + authorize_url
-    print
-    print 'If your browser is on a different machine then exit and re-run this'
-    print 'application with the command-line parameter '
-    print
-    print '  --noauth_local_webserver'
-    print
+    print('Your browser has been opened to visit:')
+    print()
+    print('    ' + authorize_url)
+    print()
+    print('If your browser is on a different machine then exit and re-run this')
+    print('application with the command-line parameter ')
+    print()
+    print('  --noauth_local_webserver')
+    print()
   else:
-    print 'Go to the following link in your browser:'
-    print
-    print '    ' + authorize_url
-    print
+    print('Go to the following link in your browser:')
+    print()
+    print('    ' + authorize_url)
+    print()
 
   code = None
   if not flags.noauth_local_webserver:
@@ -210,19 +212,19 @@ def run_flow(flow, storage, flags, http=None):
     if 'code' in httpd.query_params:
       code = httpd.query_params['code']
     else:
-      print 'Failed to find "code" in the query parameters of the redirect.'
+      print('Failed to find "code" in the query parameters of the redirect.')
       sys.exit('Try running with --noauth_local_webserver.')
   else:
     code = raw_input('Enter verification code: ').strip()
 
   try:
     credential = flow.step2_exchange(code, http=http)
-  except client.FlowExchangeError, e:
+  except client.FlowExchangeError as e:
     sys.exit('Authentication has failed: %s' % e)
 
   storage.put(credential)
   credential.set_store(storage)
-  print 'Authentication successful.'
+  print('Authentication successful.')
 
   return credential
 
@@ -233,8 +235,8 @@ def message_if_missing(filename):
   return _CLIENT_SECRETS_MESSAGE % filename
 
 try:
-  from old_run import run
-  from old_run import FLAGS
+  from .old_run import run
+  from .old_run import FLAGS
 except ImportError:
   def run(*args, **kwargs):
     raise NotImplementedError(
