@@ -28,6 +28,7 @@ Usage:
     f.unlock_and_close()
 """
 
+from builtins import object
 __author__ = 'cache@google.com (David T McWherter)'
 
 import errno

@@ -17,6 +17,8 @@
 Utilities for making it easier to use OAuth 2.0 on Google App Engine.
 """
 
+from builtins import str
+from builtins import object
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64

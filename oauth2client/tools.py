@@ -21,11 +21,14 @@ the same directory.
 from __future__ import print_function
 from __future__ import absolute_import
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
 
 
-import BaseHTTPServer
+import http.server
 import argparse
 import httplib2
 import logging
@@ -39,7 +42,7 @@ from oauth2client import file
 from oauth2client import util
 
 try:
-  from urlparse import parse_qsl
+  from urllib.parse import parse_qsl
 except ImportError:
   from cgi import parse_qsl
 
@@ -70,7 +73,7 @@ argparser.add_argument('--logging_level', default='ERROR',
                         help='Set the logging level of detail.')
 
 
-class ClientRedirectServer(BaseHTTPServer.HTTPServer):
+class ClientRedirectServer(http.server.HTTPServer):
   """A server to handle OAuth 2.0 redirects back to localhost.
 
   Waits for a single request and parses the query parameters
@@ -79,7 +82,7 @@ class ClientRedirectServer(BaseHTTPServer.HTTPServer):
   query_params = {}
 
 
-class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
   """A handler for OAuth 2.0 redirects back to localhost.
 
   Waits for a single request and parses the query parameters
@@ -215,7 +218,7 @@ def run_flow(flow, storage, flags, http=None):
       print('Failed to find "code" in the query parameters of the redirect.')
       sys.exit('Try running with --noauth_local_webserver.')
   else:
-    code = raw_input('Enter verification code: ').strip()
+    code = input('Enter verification code: ').strip()
 
   try:
     credential = flow.step2_exchange(code, http=http)

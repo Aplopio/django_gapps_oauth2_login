@@ -42,6 +42,7 @@ The format of the stored data is like so:
 """
 from __future__ import absolute_import
 
+from builtins import object
 __author__ = 'jbeda@google.com (Joe Beda)'
 
 import base64
@@ -399,7 +400,7 @@ class _MultiStore(object):
     raw_data = {'file_version': 1}
     raw_creds = []
     raw_data['data'] = raw_creds
-    for (cred_key, cred) in self._data.items():
+    for (cred_key, cred) in list(self._data.items()):
       raw_key = dict(cred_key)
       raw_cred = simplejson.loads(cred.to_json())
       raw_creds.append({'key': raw_key, 'credential': raw_cred})
@@ -411,7 +412,7 @@ class _MultiStore(object):
     Returns:
       A list of dictionaries corresponding to all the keys currently registered
     """
-    return [dict(key) for key in self._data.keys()]
+    return [dict(key) for key in list(self._data.keys())]
 
   def _get_credential(self, key):
     """Get a credential from the multistore.

@@ -18,6 +18,10 @@ Tools for interacting with OAuth 2.0 protected resources.
 """
 from __future__ import absolute_import
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
@@ -29,8 +33,8 @@ import logging
 import os
 import sys
 import time
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
@@ -49,7 +53,7 @@ except ImportError:
   pass
 
 try:
-  from urlparse import parse_qsl
+  from urllib.parse import parse_qsl
 except ImportError:
   from cgi import parse_qsl
 
@@ -358,7 +362,7 @@ def clean_headers(headers):
   """
   clean = {}
   try:
-    for k, v in headers.iteritems():
+    for k, v in headers.items():
       clean[str(k)] = str(v)
   except UnicodeEncodeError:
     raise NonAsciiHeaderError(k + ': ' + v)
@@ -375,11 +379,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = list(urlparse.urlparse(uri))
+  parts = list(urllib.parse.urlparse(uri))
   query_params = dict(parse_qsl(parts[4])) # 4 is the index of the query part
   query_params.update(params)
-  parts[4] = urllib.urlencode(query_params)
-  return urlparse.urlunparse(parts)
+  parts[4] = urllib.parse.urlencode(query_params)
+  return urllib.parse.urlunparse(parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -617,7 +621,7 @@ class OAuth2Credentials(Credentials):
 
   def _generate_refresh_request_body(self):
     """Generate the body that will be used in the refresh request."""
-    body = urllib.urlencode({
+    body = urllib.parse.urlencode({
         'grant_type': 'refresh_token',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -861,7 +865,7 @@ class AssertionCredentials(OAuth2Credentials):
   def _generate_refresh_request_body(self):
     assertion = self._generate_assertion()
 
-    body = urllib.urlencode({
+    body = urllib.parse.urlencode({
         'assertion': assertion,
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
@@ -962,7 +966,7 @@ if HAS_CRYPTO:
 
     def _generate_assertion(self):
       """Generate the assertion that will be used in the request."""
-      now = long(time.time())
+      now = int(time.time())
       payload = {
           'aud': self.token_uri,
           'scope': self.scope,
@@ -1252,7 +1256,7 @@ class OAuth2WebServerFlow(Flow):
       refresh_token.
     """
 
-    if not (isinstance(code, str) or isinstance(code, unicode)):
+    if not isinstance(code, str):
       if 'code' not in code:
         if 'error' in code:
           error_msg = code['error']
@@ -1262,7 +1266,7 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urllib.urlencode({
+    body = urllib.parse.urlencode({
         'grant_type': 'authorization_code',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -1305,7 +1309,7 @@ class OAuth2WebServerFlow(Flow):
       logger.info('Failed to retrieve access token: %s' % content)
       if 'error' in d:
         # you never know what those providers got to say
-        error_msg = unicode(d['error'])
+        error_msg = str(d['error'])
       else:
         error_msg = 'Invalid response: %s.' % str(resp.status)
       raise FlowExchangeError(error_msg)

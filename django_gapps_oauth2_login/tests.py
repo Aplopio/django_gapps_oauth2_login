@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import object
 import  requests
 import json
 from django.utils import unittest
@@ -182,7 +183,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423'},
             'and_some_more': 'blah_blah_blah'}
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -280,7 +281,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'}, 'and_some_more': 'blah_blah_blah'}
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -338,7 +339,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         }
         request.user = user
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -384,7 +385,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         }
         request.user = user
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -485,7 +486,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423', 'hd': 'rajnikanth.com'},
             'and_some_more': 'blah_blah_blah'}
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -521,8 +522,8 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423', 'hd': 'rajnikanth.com'},
             'and_some_more': 'blah_blah_blah'}
 
-        class oauth2client_credential:
-            class credential:
+        class oauth2client_credential(object):
+            class credential(object):
                 token_response = oauth2_response
                 invalid = False
 

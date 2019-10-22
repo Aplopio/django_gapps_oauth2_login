@@ -16,6 +16,8 @@
 # limitations under the License.
 
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import base64
 import hashlib
 import logging
@@ -335,7 +337,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
 
   # Check signature.
   verified = False
-  for (keyname, pem) in certs.items():
+  for (keyname, pem) in list(certs.items()):
     verifier = Verifier.from_string(pem, True)
     if (verifier.verify(signed, signature)):
       verified = True
@@ -350,7 +352,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   earliest = iat - CLOCK_SKEW_SECS
 
   # Check expiration timestamp.
-  now = long(time.time())
+  now = int(time.time())
   exp = parsed.get('exp')
   if exp is None:
     raise AppIdentityError('No exp field in token: %s' % json_body)
