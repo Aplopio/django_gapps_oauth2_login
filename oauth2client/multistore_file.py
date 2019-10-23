@@ -40,7 +40,9 @@ The format of the stored data is like so:
   ]
 }
 """
+from __future__ import absolute_import
 
+from builtins import object
 __author__ = 'jbeda@google.com (Joe Beda)'
 
 import base64
@@ -49,11 +51,11 @@ import logging
 import os
 import threading
 
-from anyjson import simplejson
+from .anyjson import simplejson
 from oauth2client.client import Storage as BaseStorage
 from oauth2client.client import Credentials
 from oauth2client import util
-from locked_file import LockedFile
+from .locked_file import LockedFile
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +273,7 @@ class _MultiStore(object):
     simple version of "touch" to ensure the file has been created.
     """
     if not os.path.exists(self._file.filename()):
-      old_umask = os.umask(0177)
+      old_umask = os.umask(0o177)
       try:
         open(self._file.filename(), 'a+b').close()
       finally:
@@ -398,7 +400,7 @@ class _MultiStore(object):
     raw_data = {'file_version': 1}
     raw_creds = []
     raw_data['data'] = raw_creds
-    for (cred_key, cred) in self._data.items():
+    for (cred_key, cred) in list(self._data.items()):
       raw_key = dict(cred_key)
       raw_cred = simplejson.loads(cred.to_json())
       raw_creds.append({'key': raw_key, 'credential': raw_cred})
@@ -410,7 +412,7 @@ class _MultiStore(object):
     Returns:
       A list of dictionaries corresponding to all the keys currently registered
     """
-    return [dict(key) for key in self._data.keys()]
+    return [dict(key) for key in list(self._data.keys())]
 
   def _get_credential(self, key):
     """Get a credential from the multistore.

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from builtins import object
 import  requests
 import json
 from django.utils import unittest
@@ -15,7 +17,7 @@ from .service import \
     get_or_create_user_from_oauth2, get_organization_name
 from .service import redirect_to_authorize_url
 from .models import CredentialsModel
-import utils
+from . import utils
 import django_gapps_oauth2_login
 
 
@@ -181,7 +183,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423'},
             'and_some_more': 'blah_blah_blah'}
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -279,7 +281,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'access_token': '5435rwesdfsd!!qw4324321eqw23@!@###asdasd',
             'id_token': {'id': '42342423432423'}, 'and_some_more': 'blah_blah_blah'}
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -337,7 +339,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         }
         request.user = user
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -383,7 +385,7 @@ class TestGappsOauth2Login(unittest.TestCase):
         }
         request.user = user
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -484,7 +486,7 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423', 'hd': 'rajnikanth.com'},
             'and_some_more': 'blah_blah_blah'}
 
-        class credential:
+        class credential(object):
             token_response = oauth2_response
             invalid = False
 
@@ -520,8 +522,8 @@ class TestGappsOauth2Login(unittest.TestCase):
             'id_token': {'id': '42342423432423', 'hd': 'rajnikanth.com'},
             'and_some_more': 'blah_blah_blah'}
 
-        class oauth2client_credential:
-            class credential:
+        class oauth2client_credential(object):
+            class credential(object):
                 token_response = oauth2_response
                 invalid = False
 

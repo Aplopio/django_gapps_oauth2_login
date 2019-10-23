@@ -17,6 +17,8 @@
 Utilities for making it easier to use OAuth 2.0 on Google App Engine.
 """
 
+from builtins import str
+from builtins import object
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
@@ -187,7 +189,7 @@ class AppAssertionCredentials(AssertionCredentials):
     try:
       scopes = self.scope.split()
       (token, _) = app_identity.get_access_token(scopes)
-    except app_identity.Error, e:
+    except app_identity.Error as e:
       raise AccessTokenRefreshError(str(e))
     self.access_token = token
 

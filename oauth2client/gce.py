@@ -17,6 +17,7 @@
 Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 """
 
+from builtins import str
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import httplib2
@@ -83,7 +84,7 @@ class AppAssertionCredentials(AssertionCredentials):
     if response.status == 200:
       try:
         d = simplejson.loads(content)
-      except StandardError, e:
+      except Exception as e:
         raise AccessTokenRefreshError(str(e))
       self.access_token = d['accessToken']
     else:
