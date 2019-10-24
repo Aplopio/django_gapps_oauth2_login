@@ -36,7 +36,7 @@ if needs_json:
   install_requires.append('simplejson')
 
 setup(name='django_gapps_oauth2_login',
-      version='0.9.9.1',
+      version='1.0.0',
       description='Django Google Apps Oauth2 Login',
       long_description = long_description,
       author='Vivek Chand',
