@@ -16,8 +16,12 @@
 
 """Helper methods for creating & verifying XSRF tokens."""
 
+import sys
+
+if sys.version_info[0] == 3:
+  from builtins import str
 from builtins import zip
-from builtins import str
+
 __authors__ = [
   '"Doug Coker" <dcoker@google.com>',
   '"Joe Gregorio" <jcgregorio@google.com>',
