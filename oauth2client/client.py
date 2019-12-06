@@ -30,7 +30,6 @@ import copy
 import datetime
 import httplib2
 import logging
-import os
 import sys
 import time
 from future.moves import urllib
