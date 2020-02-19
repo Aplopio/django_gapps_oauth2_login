@@ -4,7 +4,7 @@ import requests
 import httplib2
 from oauth2client.client import AccessTokenCredentials
 import importlib
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from .models import CredentialsModel
 
