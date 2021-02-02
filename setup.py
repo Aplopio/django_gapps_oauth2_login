@@ -21,7 +21,8 @@ Write custom receivers for user_created_via_oauth2 & redirect_user_loggedin_via_
 Run testcases, python manage.py test django_gapps_oauth2_login
 """
 
-install_requires = ['httplib2>=0.8', 'mock==4.0.2', 'beautifulsoup4==4.9.0']
+install_requires = ['httplib2>=0.8', 'beautifulsoup4==4.9.0']
+tests_require = ['mock==4.0.2', ]
 
 needs_json = False
 try:
@@ -55,4 +56,5 @@ setup(name='django_gapps_oauth2_login',
       keywords=["django ", "oauth2", "login"],
       packages=['django_gapps_oauth2_login', 'oauth2client'],
       install_requires=install_requires,
+      tests_require=tests_require,
       )
