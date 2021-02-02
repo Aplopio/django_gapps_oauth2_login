@@ -37,7 +37,7 @@ from oauth2client import util
 
 
 # Delimiter character
-DELIMITER = ':'
+DELIMITER = b':'
 
 # 1 hour in seconds
 DEFAULT_TIMEOUT_SECS = 1*60*60
@@ -57,18 +57,17 @@ def generate_token(key, user_id, action_id="", when=None):
   Returns:
     A string XSRF protection token.
   """
-  when = when or int(time.time())
-  digester = hmac.new(key)
-  digester.update(str(user_id))
+  digester = hmac.new(bytes(key, encoding='utf-8'))
+  digester.update(bytes(str(user_id), encoding='utf-8'))
   digester.update(DELIMITER)
-  digester.update(action_id)
+  digester.update(bytes(action_id, encoding='utf-8'))
   digester.update(DELIMITER)
-  digester.update(str(when))
+  when = bytes(str(when or int(time.time())), encoding='utf-8')
+  digester.update(when)
   digest = digester.digest()
 
-  token = base64.urlsafe_b64encode('%s%s%d' % (digest,
-                                               DELIMITER,
-                                               when))
+  token = base64.urlsafe_b64encode(digest + DELIMITER + when)
+
   return token
 
 
@@ -111,7 +110,7 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
 
   # Perform constant time comparison to avoid timing attacks
   different = 0
-  for x, y in zip(token, expected_token):
+  for x, y in zip(bytearray(token, 'utf-8'), bytearray(expected_token, 'utf-8')):
     different |= ord(x) ^ ord(y)
   if different:
     return False
