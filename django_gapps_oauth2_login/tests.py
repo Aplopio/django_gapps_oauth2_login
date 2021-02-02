@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from builtins import object
 import  requests
 import json
-from django.utils import unittest
+from django.test import TestCase
 from django.http import HttpRequest
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -21,7 +21,7 @@ from . import utils
 import django_gapps_oauth2_login
 
 
-class TestGappsOauth2Login(unittest.TestCase):
+class TestGappsOauth2Login(TestCase):
     @patch.object(django_gapps_oauth2_login.utils,
                   '_extract_user_details')
     @patch(settings.GAPPS_USER_FUNCTION)
